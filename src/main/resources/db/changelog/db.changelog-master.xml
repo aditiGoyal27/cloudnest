@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Define a changeSet to create a table -->
+    <changeSet id="1" author="yourname">
+        <createTable tableName="tbl_role">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="yourname">
+        <insert tableName="tbl_role">
+            <column name="name" value="SUPER_ADMIN"/>
+            <column name="description" value="Super Administrator role with full permissions"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="3" author="yourname">
+        <insert tableName="tbl_role">
+            <column name="name" value="USER"/>
+            <column name="description" value="Regular user role with limited permissions"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="4" author="yourname">
+        <insert tableName="tbl_role">
+            <column name="name" value="ADMIN"/>
+            <column name="description" value="Admin with limited permissions"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

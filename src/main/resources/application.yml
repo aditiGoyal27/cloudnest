@@ -1,0 +1,36 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: cloudnest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_cloudnest
+    username: postgres
+    password: Shanti1995
+  jpa:
+    hibernate:
+      ddl-auto: update  # This is correct, will not automatically update the schema
+      # dialect: org.hibernate.dialect.PostgreSQLDialect  # Uncomment if needed
+    show-sql: true  # Optional: logs SQL statements
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    url: jdbc:postgresql://localhost:5432/db_cloudnest
+#    user: postgres
+#    password: Shanti1995
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testuserone038@gmail.com
+    password: ffol taye iydx hvyb
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  file:
+    name: logs/application.log
