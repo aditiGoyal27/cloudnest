@@ -14,7 +14,6 @@ import com.opensource.cloudnest.repository.TenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -41,8 +40,8 @@ public class ProfileAdminService {
     @Autowired
     private EmailVerificationService emailVerificationService;
 
-    @Transactional
-    public ResDTO<Object> signUpAdmin(SignUpDTO signUpAdminDTO, String superAdminId) {
+
+    public ResDTO<Object> signUpAdmin(SignUpDTO signUpAdminDTO, Integer superAdminId) {
         try {
             // Extracting data from DTO
             String name = signUpAdminDTO.getName();
@@ -59,6 +58,7 @@ public class ProfileAdminService {
             profile.setUserName(userName);
             profile.setPassword(password);
             profile.setContactNumber(contactNumber);
+            profile.setStatus("ACTIVE");
 
             // Set role
             Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
@@ -85,7 +85,6 @@ public class ProfileAdminService {
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Admin created successfully");
 
         } catch (Exception e) {
-
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "An error occurred during signup. Please try again later.");
         }
     }

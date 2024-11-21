@@ -1,6 +1,7 @@
 package com.opensource.cloudnest;
 
 import com.opensource.cloudnest.configuration.JwtTokenProvider;
+import com.opensource.cloudnest.controller.TenantController;
 import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.TenantDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
@@ -8,138 +9,152 @@ import com.opensource.cloudnest.service.TenantService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class TenantControllerTest {
+public class TenantControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private TenantController tenantController;
 
-    @MockBean
+    @Mock
     private TenantService tenantService;
 
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
+    @Mock
+    private HttpServletRequest request;
 
     private String jwtToken;
     private TenantDTO tenantDTO;
-
     @BeforeEach
     void setUp() {
-        jwtToken = JwtTokenProvider.generateToken("palakabc" , 1); // Simulate a valid JWT token
-
-        // Initialize a sample TenantDTO object
+        MockitoAnnotations.openMocks(this);
+        jwtToken = JwtTokenProvider.generateToken("testUser" , 1); // Simulate a valid JWT token
         tenantDTO = new TenantDTO();
-        tenantDTO.setOrgName("ABCZ");
-        tenantDTO.setOrgEmail("abcz9@gmail.com");
-        tenantDTO.setOrgContactNumber("2344556565");
-        tenantDTO.setOrgUnitName("jodjpur");
-        tenantDTO.setOrgLocation("Usa");
-        tenantDTO.setStatus("Active");
-        // Add more fields as per TenantDTO definition
+        tenantDTO.setStatus("active");
+        tenantDTO.setOrgName("abcTest");
+        tenantDTO.setOrgLocation("usa");
+        tenantDTO.setOrgEmail("abc@sdt.com");
+        tenantDTO.setOrgUnitName("kll");
+    }
+
+    // Utility Constants
+    private final Integer SUPER_ADMIN_ID = 1;
+    private final Long TENANT_ID = 123L;
+    private final Integer ADMIN_ID = 2;
+
+    @Test
+    void testCreateTenant_Success() {
+        // Arrange
+        ResDTO<Object> mockResponse = new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS,"Tenant created Successfully");
+
+        //when(JwtTokenProvider.validateProfileIdInAccessToken(request, SUPER_ADMIN_ID)).thenReturn(true);
+        when(tenantService.createTenant(SUPER_ADMIN_ID, tenantDTO)).thenReturn(mockResponse);
+
+        // Act
+        ResDTO<Object> response = tenantController.createTenant(request, SUPER_ADMIN_ID, tenantDTO);
+
+        // Assert
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals(ResDTOMessage.SUCCESS, response.getMessage());
+        assertEquals("Tenant Created", response.getPayload());
+
+        verify(tenantService).createTenant(SUPER_ADMIN_ID, tenantDTO);
     }
 
     @Test
-    @WithMockUser(roles = "SUPER_ADMIN")
-    void testCreateTenant_Success() throws Exception {
-        try {
-            when(jwtTokenProvider.validateProfileIdInAccessToken(any(HttpServletRequest.class), anyInt()))
-                    .thenReturn(true);
+    void testCreateTenant_Failure() {
+        // Arrange
+        TenantDTO tenantDTO = new TenantDTO();
+      //  when(JwtTokenProvider.validateProfileIdInAccessToken(request, SUPER_ADMIN_ID)).thenReturn(false);
 
-            // Mock the tenantService response
-            when(tenantService.createTenant(anyInt(), any(TenantDTO.class)))
-                    .thenReturn(new ResDTO<>(true, ResDTOMessage.SUCCESS, tenantDTO));
+        // Act
+        ResDTO<Object> response = tenantController.createTenant(request, SUPER_ADMIN_ID, tenantDTO);
 
-            // Perform the POST request and validate the response
-            mockMvc.perform(post("/tenant/create/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{ \"name\": \"Sample Tenant\", \"address\": \"Sample Address\" }")
-                            .header("Authorization", "Bearer valid-token"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value(ResDTOMessage.SUCCESS))
-                    .andExpect(jsonPath("$.data.name").value("Sample Tenant"));
+        // Assert
+        assertNotNull(response);
+        assertFalse(response.isSuccess());
+        assertEquals(ResDTOMessage.FAILURE, response.getMessage());
+        assertEquals("Invalid Data", response.getPayload());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        verifyNoInteractions(tenantService);
     }
 
     @Test
-    @WithMockUser(roles = "SUPER_ADMIN")
-    void testCreateTenant_InvalidToken() throws Exception {
-        // Mock the JWT token validation to return false
-        when(jwtTokenProvider.validateProfileIdInAccessToken(any(HttpServletRequest.class), anyInt())).thenReturn(false);
+    void testAssignTenantAdmin_Success() {
+        // Arrange
+        ResDTO<Object> mockResponse = new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS,"Admin assigned Successfully");
 
-        // Perform the POST request and expect failure due to invalid token
-        mockMvc.perform(post("/tenant/create/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"name\": \"Sample Tenant\", \"address\": \"Sample Address\" }")
-                        .header("Authorization", "Bearer invalid-token"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success", is(false)))
-                .andExpect(jsonPath("$.message", is(ResDTOMessage.FAILURE)))
-                .andExpect(jsonPath("$.data", is("Invalid Data")));
+       // when(JwtTokenProvider.validateProfileIdInAccessToken(request, ADMIN_ID)).thenReturn(true);
+        when(tenantService.assignTenantAdmin(TENANT_ID, ADMIN_ID)).thenReturn(mockResponse);
+
+        // Act
+        ResDTO<Object> response = tenantController.assignTenantAdmin(request, TENANT_ID, ADMIN_ID);
+
+        // Assert
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals(ResDTOMessage.SUCCESS, response.getMessage());
+        assertEquals("Admin Assigned", response.getPayload());
+
+        verify(tenantService).assignTenantAdmin(TENANT_ID, ADMIN_ID);
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void testAssignTenantAdmin_Success() throws Exception {
-        // Mock the JWT token validation to return true
-        when(jwtTokenProvider.validateProfileIdInAccessToken(any(HttpServletRequest.class), anyInt())).thenReturn(true);
+    void testAssignTenantAdmin_Failure() {
+        // Arrange
+      //  when(JwtTokenProvider.validateProfileIdInAccessToken(request, ADMIN_ID)).thenReturn(false);
 
-        // Mock the tenantService response
-        when(tenantService.assignTenantAdmin(any(Long.class), anyInt()))
-                .thenReturn(new ResDTO<>(true, ResDTOMessage.SUCCESS, "Admin assigned successfully"));
+        // Act
+        ResDTO<Object> response = tenantController.assignTenantAdmin(request, TENANT_ID, ADMIN_ID);
 
-        // Perform the POST request and validate the response
-        mockMvc.perform(post("/tenant/assignAdmin")
-                        .param("tenantId", "1")
-                        .param("adminId", "2")
-                        .header("Authorization", "Bearer valid-token"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.message", is(ResDTOMessage.SUCCESS)))
-                .andExpect(jsonPath("$.data", is("Admin assigned successfully")));
+        // Assert
+        assertNotNull(response);
+        assertFalse(response.isSuccess());
+        assertEquals(ResDTOMessage.FAILURE, response.getMessage());
+        assertEquals("Invalid Data", response.getPayload());
+
+        verifyNoInteractions(tenantService);
     }
 
     @Test
-    @WithMockUser(roles = "SUPER_ADMIN")
-    void testDeleteTenant_Success() throws Exception {
-        // Mock the JWT token validation to return true
-        when(jwtTokenProvider.validateProfileIdInAccessToken(any(HttpServletRequest.class), anyInt())).thenReturn(true);
+    void testDeleteTenant_Success() {
+        // Arrange
+        ResDTO<Object> mockResponse = new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS,"Tenant deleted Successfully");
 
-        // Mock the tenantService response
-        when(tenantService.deleteTenant(any(Long.class)))
-                .thenReturn(new ResDTO<>(true, ResDTOMessage.SUCCESS, "Tenant deleted successfully"));
+      //  when(JwtTokenProvider.validateProfileIdInAccessToken(request, SUPER_ADMIN_ID)).thenReturn(true);
+        when(tenantService.deleteTenant(TENANT_ID)).thenReturn(mockResponse);
 
-        // Perform the DELETE request and validate the response
-        mockMvc.perform(delete("/tenant/delete/1")
-                        .param("tenantId", "1")
-                        .header("Authorization", "Bearer valid-token"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.message", is(ResDTOMessage.SUCCESS)))
-                .andExpect(jsonPath("$.data", is("Tenant deleted successfully")));
+        // Act
+        ResDTO<Object> response = tenantController.deleteTenant(TENANT_ID, request, SUPER_ADMIN_ID);
+
+        // Assert
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals(ResDTOMessage.SUCCESS, response.getMessage());
+        assertEquals("Tenant Deleted", response.getPayload());
+
+        verify(tenantService).deleteTenant(TENANT_ID);
+    }
+
+    @Test
+    void testDeleteTenant_Failure() {
+        // Arrange
+       // when(JwtTokenProvider.validateProfileIdInAccessToken(request, SUPER_ADMIN_ID)).thenReturn(false);
+
+        // Act
+        ResDTO<Object> response = tenantController.deleteTenant(TENANT_ID, request, SUPER_ADMIN_ID);
+
+        // Assert
+        assertNotNull(response);
+        assertFalse(response.isSuccess());
+        assertEquals(ResDTOMessage.FAILURE, response.getMessage());
+        assertEquals("Invalid Data", response.getPayload());
+
+        verifyNoInteractions(tenantService);
     }
 }

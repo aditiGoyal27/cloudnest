@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface RelationRepository extends JpaRepository<Relation , Long> {
 List<Relation> findByAdminId(Profile adminId);
+void deleteByUserId(Profile user);
 }

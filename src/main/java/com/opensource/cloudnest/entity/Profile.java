@@ -13,7 +13,7 @@ public class Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     @Column(unique = true)
     private String userName;
@@ -23,15 +23,15 @@ public class Profile {
     @Column(unique = true)
     private String contactNumber;
     private String orgName;
-    @OneToOne
-    @JoinColumn(name = "role_id" , referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "role_id")
     private Role role;
     private String status;
     private boolean enabled = false;
     @ManyToMany
     private List<Relation> relation;
     @ManyToOne
-    @JoinColumn(name = "tenant_id") // Define the foreign key column in Profile table
+    @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
 }

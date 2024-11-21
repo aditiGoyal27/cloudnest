@@ -26,4 +26,7 @@ public class ResDTO<T> implements Serializable {
         return new ResDTO<>(this.success, this.message, (R) this.payload);
     }
 
+    public boolean isSuccess() {
+        return success;
+    }
 }

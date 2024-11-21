@@ -31,7 +31,7 @@ public class ViewService {
     @Autowired
     private ProfileRepository profileRepository;
 
-    public ResDTO<Object> viewProfile( Long adminId , int page , int size) {
+    public ResDTO<Object> viewProfile( Integer adminId , int page , int size) {
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
         if(optionalProfile.isEmpty()) {
          return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No data found");

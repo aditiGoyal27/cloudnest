@@ -77,7 +77,7 @@ public class ProfileSuperAdminService {
     }
 
     @Transactional
-    public ResDTO<Object> updateProfileDetails(Long profileId ,SignUpDTO signUpAdminDTO) {
+    public ResDTO<Object> updateProfileDetails(Integer profileId ,SignUpDTO signUpAdminDTO) {
         Optional<Profile> optionalProfile = profileRepository.findById(profileId);
         if(optionalProfile.isEmpty()) {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "ProfileId not found");

@@ -27,7 +27,7 @@ public class TenantService {
     private ProfileRepository profileRepository;
 
     @Transactional
-    public ResDTO<Object> createTenant(Long adminId , TenantDTO tenantDTO) {
+    public ResDTO<Object> createTenant(Integer adminId , TenantDTO tenantDTO) {
         String orgName = tenantDTO.getOrgName();
         String email = tenantDTO.getOrgEmail();
         String contactNumber = tenantDTO.getOrgContactNumber();
@@ -48,7 +48,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> updateTenant(Long adminId , TenantDTO tenantDTO) {
+    public ResDTO<Object> updateTenant(TenantDTO tenantDTO) {
         String orgName = tenantDTO.getOrgName();
         String email = tenantDTO.getOrgEmail();
         String contactNumber = tenantDTO.getOrgContactNumber();
@@ -69,10 +69,8 @@ public class TenantService {
         tenant.setOrgContactNumber(contactNumber);
         tenant.setOrgLocation(orgLocation);
         tenant.setStatus(status);
-        Optional<Profile> superAdmin = profileRepository.findById(adminId);
-        superAdmin.ifPresent(tenant:: setAdmin);
         tenantRepository.save(tenant);
-        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Tenant updated successfully");
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Tenant updated successfully");
     }
     @Transactional
     public ResDTO<Object> deleteTenant( Long organizationId) {
@@ -121,7 +119,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> dashboardTenantAdmins(Long tenantAdminId) {
+    public ResDTO<Object> dashboardTenantAdmins(Integer tenantAdminId) {
         Optional<Profile> optionalProfile = profileRepository.findById(tenantAdminId);
         if(optionalProfile.isPresent()) {
             Tenant tenant = tenantRepository.findByAdmin(optionalProfile.get());
@@ -212,7 +210,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> editTenantSettings(Long tenantAdminId , TenantDTO tenantDTO) {
+    public ResDTO<Object> editTenantSettings(Integer tenantAdminId , TenantDTO tenantDTO) {
         Optional<Profile> optionalProfile = profileRepository.findById(tenantAdminId);
         if(optionalProfile.isPresent()) {
             Tenant tenant = tenantRepository.findByAdmin(optionalProfile.get());
@@ -228,7 +226,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> assignTenantAdmin(Long tenantId , Long adminId) {
+    public ResDTO<Object> assignTenantAdmin(Long tenantId , Integer adminId) {
         try {
             Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
             if (optionalTenant.isPresent()) {
@@ -243,7 +241,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> assignUser(Long tenantId , Long userId) {
+    public ResDTO<Object> assignUser(Long tenantId , Integer userId) {
         try {
             Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
             if (optionalTenant.isPresent()) {

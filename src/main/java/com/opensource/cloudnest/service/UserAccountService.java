@@ -40,7 +40,7 @@ public class UserAccountService {
     @Autowired
     private EmailVerificationService emailVerificationService;
     @Transactional
-    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Long adminId) {
+    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId) {
         String name = signUpUserDTO.getName();
         String userName = signUpUserDTO.getUserName();
         String email = signUpUserDTO.getEmail();
@@ -82,7 +82,7 @@ public class UserAccountService {
     }
 
     @Transactional
-    public ResDTO<Object> updateUser(SignUpDTO signUpDTO , Long adminId) {
+    public ResDTO<Object> updateUser(SignUpDTO signUpDTO , Integer adminId) {
         String name = signUpDTO.getName();
         String userName = signUpDTO.getUserName();
         String email = signUpDTO.getEmail();
@@ -118,20 +118,20 @@ public class UserAccountService {
 
 
     @Transactional
-    public ResDTO<Object> deleteUser(Long adminId , Long userId) {
+    public ResDTO<Object> deleteUser(Integer adminId , Integer userId) {
 
         Optional<Profile> optionalUserAccount = profileRepository.findById(userId);
 
         if (optionalUserAccount.isEmpty()) {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
         }
-
+        relationRepository.deleteByUserId(optionalUserAccount.get());
         profileRepository.delete(optionalUserAccount.get());
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.DELETED_SUCCESSFULLY, "user data deleted successfully");
     }
 
     @Transactional
-    public ResDTO<Object> suspendUser(Long adminId , Long userId) {
+    public ResDTO<Object> suspendUser(Integer adminId , Integer userId) {
         Optional<Profile> optionalUserAccount = profileRepository.findById(userId);
         if(optionalUserAccount.isEmpty()) {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");

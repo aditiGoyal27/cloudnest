@@ -1,10 +1,11 @@
 package com.opensource.cloudnest.controller;
 
+import com.opensource.cloudnest.configuration.JwtTokenProvider;
 import com.opensource.cloudnest.dto.ResDTO;
+import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.service.ViewService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +17,14 @@ public class ViewController {
     private ViewService viewService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/profile/{adminId}")
-    public ResponseEntity<ResDTO<Object>> viewProfile(@RequestParam(defaultValue = "0") int page,
+    @GetMapping("/profile/{adminId}")
+    public ResDTO<Object> viewProfile(HttpServletRequest request ,@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size,
-                                                      @PathVariable Long adminId) {
-        return new ResponseEntity<>(viewService.viewProfile(adminId , page , size), HttpStatus.OK);
+                                                      @PathVariable Integer adminId) {
+        if (JwtTokenProvider.validateProfileIdInAccessToken(request, adminId)) {
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS ,viewService.viewProfile(adminId , page , size));
+        }
+        return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE , "Invalid Data");
 
     }
 

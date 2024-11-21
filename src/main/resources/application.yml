@@ -6,8 +6,6 @@ spring:
     name: cloudnest
   datasource:
     url: jdbc:postgresql://localhost:5432/db_cloudnest
-#    username: postgres
-#    password: Shanti1995
   jpa:
     hibernate:
       ddl-auto: update  # This is correct, will not automatically update the schema
@@ -17,8 +15,6 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
     url: jdbc:postgresql://localhost:5432/db_cloudnest
-#    user: postgres
-#    password: Shanti1995
   mail:
     host: smtp.gmail.com
     port: 587
