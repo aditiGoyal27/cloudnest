@@ -2,6 +2,7 @@ package com.opensource.cloudnest.service;
 
 import com.opensource.cloudnest.entity.InviteUser;
 import com.opensource.cloudnest.repository.InviteUserRepository;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

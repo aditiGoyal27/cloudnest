@@ -1,4 +1,4 @@
-package com.opensource.cloudnest.configuration;/*
+/*
 package com.opensource.cloudnest.configuration;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;

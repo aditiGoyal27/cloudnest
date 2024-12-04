@@ -2,8 +2,7 @@ package com.opensource.cloudnest.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
-
+import lombok.*;
 import java.util.List;
 
 @Data

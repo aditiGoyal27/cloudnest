@@ -1,4 +1,4 @@
-package com.opensource.cloudnest.configuration;//package com.opensource.cloudnest.configuration;
+//package com.opensource.cloudnest.configuration;
 //
 //public class TenantContext {
 //

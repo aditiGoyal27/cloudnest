@@ -4,6 +4,7 @@ import com.opensource.cloudnest.configuration.JwtTokenProvider;
 import com.opensource.cloudnest.dto.PermissionDTO;
 import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
+import com.opensource.cloudnest.repository.PermissionRepository;
 import com.opensource.cloudnest.service.PermissionService;
 import com.opensource.cloudnest.service.ProfileAdminService;
 import jakarta.servlet.http.HttpServletRequest;

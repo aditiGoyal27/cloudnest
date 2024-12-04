@@ -1,6 +1,7 @@
 package com.opensource.cloudnest.dto.response;
 
 import lombok.Builder;
+import lombok.Data;
 
 import java.util.Date;
 import java.util.List;

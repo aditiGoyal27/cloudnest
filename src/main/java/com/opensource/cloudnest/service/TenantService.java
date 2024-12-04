@@ -1,14 +1,13 @@
 package com.opensource.cloudnest.service;
 
-import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.TenantDTO;
+import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.response.DashBoardResponse;
 import com.opensource.cloudnest.dto.response.ProfileInfoResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
-import com.opensource.cloudnest.entity.Profile;
-import com.opensource.cloudnest.entity.Tenant;
-import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.entity.*;
 import com.opensource.cloudnest.repository.TenantRepository;
+import com.opensource.cloudnest.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

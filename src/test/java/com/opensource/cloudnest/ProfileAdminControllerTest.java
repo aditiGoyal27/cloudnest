@@ -1,27 +1,46 @@
 package com.opensource.cloudnest;
-
-import com.opensource.cloudnest.configuration.JwtTokenProvider;
 import com.opensource.cloudnest.controller.ProfileAdminController;
-import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.SignUpDTO;
+import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
-import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.service.ProfileAdminService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.configuration.JwtTokenProvider;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import jakarta.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.security.SignatureException;
+import java.util.Collections;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -48,7 +67,7 @@ public class ProfileAdminControllerTest {
 
     @BeforeEach
     void setUp() {
-        jwtToken = JwtTokenProvider.generateToken("testUser" , 1); // Simulate a valid JWT token
+        jwtToken = JwtTokenProvider.generateToken("aditi999" , 1); // Simulate a valid JWT token
 
         signUpDTO = new SignUpDTO();
         signUpDTO.setUserName("testAdmin");

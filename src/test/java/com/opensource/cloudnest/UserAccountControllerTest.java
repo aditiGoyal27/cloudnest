@@ -6,16 +6,22 @@ import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.SignUpDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.service.UserAccountService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserAccountControllerTest {
@@ -37,7 +43,7 @@ class UserAccountControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        jwtToken = JwtTokenProvider.generateToken("testUser" , 1); // Simulate a valid JWT token
+        jwtToken = JwtTokenProvider.generateToken("aditi999" , 1); // Simulate a valid JWT token
 
         signUpDTO = new SignUpDTO();
         signUpDTO.setUserName("testUser");

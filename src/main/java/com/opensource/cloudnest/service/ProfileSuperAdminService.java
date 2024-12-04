@@ -4,9 +4,9 @@ import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.SignUpDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.entity.EmailVerification;
-import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.entity.Role;
 import com.opensource.cloudnest.entity.RoleEnum;
+import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.repository.EmailVerificationRepository;
 import com.opensource.cloudnest.repository.ProfileRepository;
 import com.opensource.cloudnest.repository.RoleRepository;
@@ -19,6 +19,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProfileSuperAdminService {

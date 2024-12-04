@@ -26,7 +26,7 @@ class CloudnestApplicationTests {
     @BeforeEach
     void setUp() {
         // Generate a JWT token for testing, replace with your actual token generation logic
-        jwtToken = JwtTokenProvider.generateToken("testUser" , 1);  // Replace JwtTokenUtil with your JWT utility class
+        jwtToken = JwtTokenProvider.generateToken("aditi999" , 1);  // Replace JwtTokenUtil with your JWT utility class
     }
 
 }

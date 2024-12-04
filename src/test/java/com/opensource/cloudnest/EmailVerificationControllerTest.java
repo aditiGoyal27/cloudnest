@@ -1,5 +1,4 @@
 package com.opensource.cloudnest;
-
 import com.opensource.cloudnest.controller.EmailVerificationController;
 import com.opensource.cloudnest.entity.EmailVerification;
 import com.opensource.cloudnest.entity.Profile;
@@ -8,18 +7,16 @@ import com.opensource.cloudnest.repository.ProfileRepository;
 import com.opensource.cloudnest.service.EmailVerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EmailVerificationControllerTest {
 

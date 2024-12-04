@@ -1,5 +1,6 @@
 package com.opensource.cloudnest.service;
 
+import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.repository.ProfileRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
