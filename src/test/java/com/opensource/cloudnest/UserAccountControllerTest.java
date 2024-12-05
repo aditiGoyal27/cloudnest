@@ -43,7 +43,7 @@ class UserAccountControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        jwtToken = JwtTokenProvider.generateToken("aditi999" , 1); // Simulate a valid JWT token
+        jwtToken = JwtTokenProvider.generateToken("aditiabc" , 1); // Simulate a valid JWT token
 
         signUpDTO = new SignUpDTO();
         signUpDTO.setUserName("testUser");

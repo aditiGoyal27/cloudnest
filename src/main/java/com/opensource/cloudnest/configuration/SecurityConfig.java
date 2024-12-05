@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/profile/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/verify/**").permitAll()
                         .requestMatchers("/tenant/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // Disable session management for stateless JWT authentication

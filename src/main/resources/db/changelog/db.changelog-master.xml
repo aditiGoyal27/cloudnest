@@ -34,7 +34,7 @@
 
 
     <!-- Step 4: Insert Initial Role Data -->
-    <changeSet id="2" author="aditi999">
+    <changeSet id="2" author="aditi">
         <insert tableName="tbl_role">
             <column name="name" value="ROLE_SUPER_ADMIN"/>
             <column name="description" value ="ROLE_SUPER_ADMIN"/>
