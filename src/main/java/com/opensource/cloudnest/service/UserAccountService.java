@@ -42,21 +42,17 @@ public class UserAccountService {
     @Transactional
     public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId) {
         String name = signUpUserDTO.getName();
-        String userName = signUpUserDTO.getUserName();
         String email = signUpUserDTO.getEmail();
         String password =  passwordEncoder.encode(signUpUserDTO.getPassword());
         String contactNumber = signUpUserDTO.getContactNumber();
-        String orgName = signUpUserDTO.getOrganizationName();
         Profile userAccount = new Profile();
         userAccount.setName(name);
         userAccount.setEmail(email);
-        userAccount.setUserName(userName);
         userAccount.setPassword(password);
-        userAccount.setContactNumber(contactNumber);
         userAccount.setStatus("ACTIVE");
+        userAccount.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(userAccount::setRole);
-        Optional<Tenant> optionalOrganizationUnit = tenantRepository.findByOrgUnitName(orgName);
         profileRepository.save(userAccount);
         Relation relation = new Relation();
         Optional<Profile> optionalProfile = profileRepository.findByEmail(email);
@@ -84,11 +80,9 @@ public class UserAccountService {
     @Transactional
     public ResDTO<Object> updateUser(SignUpDTO signUpDTO , Integer adminId) {
         String name = signUpDTO.getName();
-        String userName = signUpDTO.getUserName();
         String email = signUpDTO.getEmail();
         String password =  passwordEncoder.encode(signUpDTO.getPassword());
         String contactNumber = signUpDTO.getContactNumber();
-        String orgName = signUpDTO.getOrganizationName();
 
         Optional<Profile> optionalUserAccount = profileRepository.findByEmail(email);
         if(optionalUserAccount.isEmpty()) {
@@ -97,13 +91,11 @@ public class UserAccountService {
         Profile userAccount = optionalUserAccount.get();
         userAccount.setName(name);
         userAccount.setEmail(email);
-        userAccount.setUserName(userName);
         userAccount.setPassword(password);
-        userAccount.setContactNumber(contactNumber);
         userAccount.setStatus("ACTIVE");
+        userAccount.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
         role.ifPresent(userAccount::setRole);
-        Optional<Tenant> optionalOrganizationUnit = tenantRepository.findByOrgUnitName(orgName);
         profileRepository.save(userAccount);
         Relation relation = new Relation();
         Optional<Profile> optionalProfile = profileRepository.findByEmail(email);

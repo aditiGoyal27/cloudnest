@@ -39,21 +39,17 @@ public class ProfileAdminService {
     private EmailVerificationService emailVerificationService;
 
 
-    public ResDTO<Object> signUpAdmin(SignUpDTO signUpAdminDTO, Integer superAdminId) {
+    public ResDTO<Object> signUpAdmin(SignUpDTO signUpAdminDTO, Integer superAdminId , Long tenantId) {
         try {
             // Extracting data from DTO
             String name = signUpAdminDTO.getName();
-            String userName = signUpAdminDTO.getUserName();
             String email = signUpAdminDTO.getEmail();
             String password = passwordEncoder.encode(signUpAdminDTO.getPassword());
             String contactNumber = signUpAdminDTO.getContactNumber();
-            String orgName = signUpAdminDTO.getOrganizationName();
-
             // Create and populate profile
             Profile profile = new Profile();
             profile.setName(name);
             profile.setEmail(email);
-            profile.setUserName(userName);
             profile.setPassword(password);
             profile.setContactNumber(contactNumber);
             profile.setStatus("ACTIVE");
@@ -66,6 +62,8 @@ public class ProfileAdminService {
                 return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Admin role not found");
             }
 
+             Optional<Tenant> tenantOptional = tenantRepository.findById(tenantId);
+            tenantOptional.ifPresent(profile::setTenant);
             // Save profile
             profileRepository.save(profile);
 

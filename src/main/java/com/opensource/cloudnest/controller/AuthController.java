@@ -36,21 +36,20 @@ public class AuthController {
     public ResDTO<Object> authenticateUser(@RequestBody LoginRequest loginRequest) {
         // Authenticate the user
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
 
-        Optional<Profile> optionalProfile = profileRepository.findByUserName(loginRequest.getUserName());
+        Optional<Profile> optionalProfile = profileRepository.findByEmail(loginRequest.getEmail());
         if(optionalProfile.isEmpty()) {
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.FAILURE, "Profile does not exist");
         }
-        String token = jwtTokenProvider.generateToken(loginRequest.getUserName(), optionalProfile.get().getId() );
+        String token = jwtTokenProvider.generateToken(loginRequest.getEmail(), optionalProfile.get().getId() );
 
         JwtResponse jwtResponse = new JwtResponse(token);
+        optionalProfile.ifPresent(profile -> jwtResponse.setProfileId(profile.getId()));
         optionalProfile.ifPresent(profile -> jwtResponse.setName(profile.getName()));
         optionalProfile.ifPresent(profile -> jwtResponse.setEmail(profile.getEmail()));
-        optionalProfile.ifPresent(profile -> jwtResponse.setOrgName(profile.getOrgName()));
         optionalProfile.ifPresent(profile -> jwtResponse.setStatus(profile.getStatus()));
-        optionalProfile.ifPresent(profile -> jwtResponse.setContactNumber(profile.getContactNumber()));
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, jwtResponse);
 
     }

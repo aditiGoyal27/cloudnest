@@ -25,10 +25,10 @@ public class ProfileAdminController {
     private ProfileRepository profileRepository;
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @PostMapping("/create/{superAdminId}")
-    public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Integer superAdminId , HttpServletRequest request) {
+    @PostMapping("/create/{superAdminId}/{tenantId}")
+    public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Integer superAdminId, @PathVariable Long tenantId , HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS , profileAdminService.signUpAdmin(signUpDTO, superAdminId));
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS , profileAdminService.signUpAdmin(signUpDTO, superAdminId ,tenantId ));
         }
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
     }

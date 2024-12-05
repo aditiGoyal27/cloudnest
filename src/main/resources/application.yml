@@ -5,7 +5,7 @@ spring:
   application:
     name: cloudnest
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_cloudnest
+    url: jdbc:postgresql://localhost:5432/db_wavematrix_cloudnest
   jpa:
     hibernate:
       ddl-auto: update  # This is correct, will not automatically update the schema
@@ -14,7 +14,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
-    url: jdbc:postgresql://localhost:5432/db_cloudnest
+    url: jdbc:postgresql://localhost:5432/db_wavematrix_cloudnest
   mail:
     host: smtp.gmail.com
     port: 587

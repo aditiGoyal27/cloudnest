@@ -43,16 +43,14 @@ public class ProfileSuperAdminService {
     @Transactional
     public ResDTO<Object> signUpSuperAdmin(SignUpDTO signUpAdminDTO) {
       String name = signUpAdminDTO.getName();
-      String userName = signUpAdminDTO.getUserName();
       String email = signUpAdminDTO.getEmail();
-      String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
       String contactNumber = signUpAdminDTO.getContactNumber();
+      String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
       Profile superAdmin = new Profile();
       superAdmin.setName(name);
       superAdmin.setEmail(email);
-      superAdmin.setUserName(userName);
-      superAdmin.setPassword(password);
       superAdmin.setContactNumber(contactNumber);
+      superAdmin.setPassword(password);
       superAdmin.setStatus("ACTIVE");
       Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
       role.ifPresent(superAdmin::setRole);
@@ -86,14 +84,11 @@ public class ProfileSuperAdminService {
 
         Profile profile = optionalProfile.get();
         String name = signUpAdminDTO.getName();
-        String userName = signUpAdminDTO.getUserName();
         String email = signUpAdminDTO.getEmail();
         String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
         String contactNumber = signUpAdminDTO.getContactNumber();
-
         profile.setName(name);
         profile.setEmail(email);
-        profile.setUserName(userName);
         profile.setPassword(password);
         profile.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());

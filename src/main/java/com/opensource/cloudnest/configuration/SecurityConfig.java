@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/profile/superAdmin/**").permitAll()
                         .requestMatchers("/profile/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/verify/**").permitAll()

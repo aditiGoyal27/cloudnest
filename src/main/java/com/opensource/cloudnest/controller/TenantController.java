@@ -27,7 +27,7 @@ public class TenantController {
         return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE , "Invalid Data");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     @PostMapping("/assignAdmin")
     public ResDTO<Object> assignTenantAdmin(HttpServletRequest request ,@RequestParam Long tenantId, @RequestParam Integer adminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, adminId)) {

@@ -14,14 +14,10 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    @Column(unique = true)
-    private String userName;
     private String password;
     @Column(unique = true)
     private String email;
-    @Column(unique = true)
     private String contactNumber;
-    private String orgName;
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

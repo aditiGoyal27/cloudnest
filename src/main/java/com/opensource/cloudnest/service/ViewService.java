@@ -47,11 +47,8 @@ public class ViewService {
                 ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(
                         profile.getId(),
                         profile.getName(),
-                        profile.getUserName(),
                         profile.getPassword(),
                         profile.getEmail(),
-                        profile.getContactNumber(),
-                        profile.getOrgName(),
                         profile.getRole().getName().toString(),
                         profile.getStatus(),
                         profile.isEnabled()

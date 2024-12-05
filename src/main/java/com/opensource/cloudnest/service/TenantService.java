@@ -135,11 +135,8 @@ public class TenantService {
                 ProfileInfoResponse profileInfoResponse = ProfileInfoResponse.builder()
                         .id(profile.getId())
                         .name(profile.getName())
-                        .userName(profile.getUserName())
                         .password(profile.getPassword()) // Ensure safe handling of passwords
                         .email(profile.getEmail())
-                        .contactNumber(profile.getContactNumber())
-                        .orgname(tenant.getOrgName())
                         .role(profile.getRole().getName().toString())
                         .status(profile.getStatus())
                         .enabled(profile.isEnabled())
@@ -173,11 +170,8 @@ public class TenantService {
                     ProfileInfoResponse profileInfoResponse = ProfileInfoResponse.builder()
                             .id(profile.getId())
                             .name(profile.getName())
-                            .userName(profile.getUserName())
                             .password(profile.getPassword()) // Ensure safe handling of passwords
                             .email(profile.getEmail())
-                            .contactNumber(profile.getContactNumber())
-                            .orgname(tenant.getOrgName())
                             .role(profile.getRole().getName().toString())
                             .status(profile.getStatus())
                             .enabled(profile.isEnabled())
