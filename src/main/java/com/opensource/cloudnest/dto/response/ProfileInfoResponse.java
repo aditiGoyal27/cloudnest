@@ -5,6 +5,6 @@ import lombok.Builder;
 @Builder
 public record ProfileInfoResponse(long id , String name ,
                                   String password , String email  ,
-                                   String role , String status ,
+                                   String role , String status , long tenantId ,
                                   boolean enabled) {
 }

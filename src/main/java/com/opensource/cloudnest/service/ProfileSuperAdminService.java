@@ -2,6 +2,7 @@ package com.opensource.cloudnest.service;
 
 import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.SignUpDTO;
+import com.opensource.cloudnest.dto.response.ProfileInfoResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.entity.EmailVerification;
 import com.opensource.cloudnest.entity.Role;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +74,14 @@ public class ProfileSuperAdminService {
 
     public ResDTO<Object> getProfileDetails() {
         List<Profile> profileList = profileRepository.findAll();
-        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, profileList);
+        List<ProfileInfoResponse> profileInfoResponseList = new ArrayList<>();
+        for(Profile profile : profileList) {
+            ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(profile.getId() , profile.getName(),
+                    profile.getPassword() , profile.getEmail() , profile.getRole().getName(), profile.getStatus(),profile.getTenant()!=null ? profile.getTenant().getId() : 0,
+                    profile.isEnabled());
+            profileInfoResponseList.add(profileInfoResponse);
+        }
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, profileInfoResponseList);
     }
 
     @Transactional

@@ -51,6 +51,7 @@ public class ViewService {
                         profile.getEmail(),
                         profile.getRole().getName().toString(),
                         profile.getStatus(),
+                        profile.getTenant()!=null ? profile.getTenant().getId() : 0,
                         profile.isEnabled()
                 );
                 profileInfoResponses.add(profileInfoResponse);
