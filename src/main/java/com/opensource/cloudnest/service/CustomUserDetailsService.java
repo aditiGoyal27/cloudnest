@@ -1,6 +1,7 @@
 package com.opensource.cloudnest.service;
 
 
+import com.opensource.cloudnest.configuration.CustomUserDetails;
 import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.repository.ProfileRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,10 +25,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Profile profile = profileRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        return new org.springframework.security.core.userdetails.User(
-                profile.getEmail(),
-                profile.getPassword(),
-                Collections.singletonList(() -> profile.getRole().getName())  // Grant authorities based on role
-        );
+        // Assign the single role
+        String role = profile.getRole().getName(); // Assuming `user.getRole()` fetches the single role entity
+        return new CustomUserDetails(profile.getId(), profile.getEmail(), profile.getPassword(), role);
     }
 }

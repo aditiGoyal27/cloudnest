@@ -5,72 +5,111 @@ import com.opensource.cloudnest.dto.ResDTO;
 import com.opensource.cloudnest.dto.response.DashBoardResponse;
 import com.opensource.cloudnest.dto.response.ProfileInfoResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
+import com.opensource.cloudnest.dto.response.TenantResponse;
 import com.opensource.cloudnest.entity.*;
+import com.opensource.cloudnest.repository.RoleRepository;
 import com.opensource.cloudnest.repository.TenantRepository;
 import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.repository.TokenRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TenantService {
 
     @Autowired
     private TenantRepository tenantRepository;
-
+    @PersistenceContext
+    private EntityManager entityManager;
     @Autowired
     private ProfileRepository profileRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private TokenService tokenService;
+    @Autowired
+    private EmailService emailService;
     @Transactional
     public ResDTO<Object> createTenant(Integer adminId , TenantDTO tenantDTO) {
+        String tenantName = tenantDTO.getTenantName();
         String orgName = tenantDTO.getOrgName();
-        String email = tenantDTO.getOrgEmail();
-        String contactNumber = tenantDTO.getOrgContactNumber();
-        String orgUnitName = tenantDTO.getOrgUnitName();
-        String orgLocation = tenantDTO.getOrgLocation();
-        String status = tenantDTO.getStatus();
+        String orgAdminName = tenantDTO.getOrgAdminName();
+        String orgAdminEmail = tenantDTO.getOrgAdminEmail();
+        Profile profile = new Profile();
+        profile.setName(orgAdminName);
+        profile.setEmail(orgAdminEmail);
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
+        role.ifPresent(profile::setRole);
+        Optional<Profile> optionalProfileSuperAdmin = profileRepository.findById(adminId);
+        optionalProfileSuperAdmin.ifPresent(profile::setSuperAdmin);
+        profileRepository.save(profile);
         Tenant tenant = new Tenant();
-        tenant.setOrgUnitName(orgUnitName);
         tenant.setOrgName(orgName);
-        tenant.setOrgEmail(email);
-        tenant.setOrgContactNumber(contactNumber);
-        tenant.setOrgLocation(orgLocation);
-        tenant.setStatus(status);
-        Optional<Profile> superAdmin = profileRepository.findById(adminId);
-        superAdmin.ifPresent(tenant:: setAdmin);
+        tenant.setCreatedAt(LocalDateTime.now());
+        tenant.setTenantName(tenantName);
+        Optional<Profile> optionalProfile = profileRepository.findByEmail(orgAdminEmail);
+        optionalProfile.ifPresent(tenant::setTenantAdmin);
         tenantRepository.save(tenant);
+        Optional<Profile> optionalProfile1 = profileRepository.findByEmail(orgAdminEmail);
+        if(optionalProfile1.isPresent()){
+            Profile profile1 = optionalProfile1.get();
+            Optional<Tenant> optionalTenant = tenantRepository.findByTenantName(tenantName);
+            optionalTenant.ifPresent(profile1::setTenant);
+            profileRepository.save(profile1);
+        }
+        String token = tokenService.createToken(orgAdminEmail);
+        emailService.sendSignUpLink(orgAdminEmail, token);
+        // Save token to database
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Tenant created successfully");
     }
 
     @Transactional
-    public ResDTO<Object> updateTenant(TenantDTO tenantDTO) {
+    public ResDTO<Object> updateTenant(Integer superAdminId ,Long tenantId,TenantDTO tenantDTO) {
+        String tenantName = tenantDTO.getTenantName();
         String orgName = tenantDTO.getOrgName();
-        String email = tenantDTO.getOrgEmail();
-        String contactNumber = tenantDTO.getOrgContactNumber();
-        String orgUnitName = tenantDTO.getOrgUnitName();
-        String orgLocation = tenantDTO.getOrgLocation();
-        String status = tenantDTO.getStatus();
-        Optional<Tenant> optionalOrganizationUnit = tenantRepository.findByOrgEmail(email);
-
-        if(optionalOrganizationUnit.isEmpty()) {
-                return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Tenant not found");
+        String orgAdminName = tenantDTO.getOrgAdminName();
+        String orgAdminEmail = tenantDTO.getOrgAdminEmail();
+        Optional<Profile>   optionalProfile = profileRepository.findByEmail(orgAdminEmail);
+        if(optionalProfile.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Profile not found");
+        }
+        Profile profile = optionalProfile.get();
+        profile.setName(orgAdminName);
+        profile.setEmail(orgAdminEmail);
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
+        role.ifPresent(profile::setRole);
+        profileRepository.save(profile);
+        Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
+        if(optionalTenant.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Tenant not found");
         }
 
-        Tenant tenant = optionalOrganizationUnit.get();
-
-        tenant.setOrgUnitName(orgUnitName);
+        Tenant tenant = optionalTenant.get();
         tenant.setOrgName(orgName);
-        tenant.setOrgEmail(email);
-        tenant.setOrgContactNumber(contactNumber);
-        tenant.setOrgLocation(orgLocation);
-        tenant.setStatus(status);
+        tenant.setCreatedAt(LocalDateTime.now());
+        tenant.setTenantName(tenantName);
+        optionalProfile.ifPresent(tenant::setTenantAdmin);
+       // String token = tokenService.createToken(orgAdminEmail);
+       // emailService.sendSignUpLink(orgAdminEmail, token);
         tenantRepository.save(tenant);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Tenant updated successfully");
     }
+
     @Transactional
     public ResDTO<Object> deleteTenant( Long organizationId) {
 
@@ -121,8 +160,8 @@ public class TenantService {
     public ResDTO<Object> dashboardTenantAdmins(Integer tenantAdminId) {
         Optional<Profile> optionalProfile = profileRepository.findById(tenantAdminId);
         if(optionalProfile.isPresent()) {
-            Tenant tenant = tenantRepository.findByAdmin(optionalProfile.get());
-            DashBoardResponse dashBoardResponse = createDashBoardResponse(tenant);
+            Optional<Tenant> tenant = tenantRepository.findByTenantAdmin(optionalProfile.get());
+            DashBoardResponse dashBoardResponse = createDashBoardResponse(tenant.get());
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, dashBoardResponse);
         }
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.FAILURE, "Tenant Data not found");
@@ -145,15 +184,10 @@ public class TenantService {
             }
              dashBoardResponse = new DashBoardResponse(
                     tenant.getId(),
+                    tenant.getTenantName(),
                     tenant.getOrgName(),
-                    tenant.getOrgUnitName(),
-                    tenant.getOrgLocation(),
-                    tenant.getOrgEmail(),
-                    tenant.getOrgContactNumber(),
-                    tenant.getStatus(),
-                    tenant.getCreatedAt(),
-                    tenant.getUpdatedAt(),
-                    tenant.getAdmin().getName(),
+                    tenant.getTenantAdmin().getName(),
+                    tenant.getTenantAdmin().getEmail(),
                     profileInfoResponseList,
                     tenant.getBillingDetails()!=null ? tenant.getBillingDetails().getAmount() : 0);
 
@@ -182,15 +216,9 @@ public class TenantService {
 
             DashBoardResponse dashBoardResponse = DashBoardResponse.builder()
                     .id(tenant.getId())
-                    .orgName(tenant.getOrgName())
-                    .orgUnitName(tenant.getOrgUnitName())
-                    .orgLocation(tenant.getOrgLocation())
-                    .orgEmail(tenant.getOrgEmail())
-                    .orgContactNumber(tenant.getOrgContactNumber())
-                    .status(tenant.getStatus())
-                    .createdAt(tenant.getCreatedAt())
-                    .updatedAt(tenant.getUpdatedAt())
-                    .adminName(tenant.getAdmin().getName())
+                    .tenantName(tenant.getTenantName())
+                    .orgAdminName(tenant.getTenantAdmin().getName())
+                    .orgAdminEmail(tenant.getTenantAdmin().getEmail())
                     .profileInfoResponseList(profileInfoResponseList)
                     .billingAmount(tenant.getBillingDetails() != null ? tenant.getBillingDetails().getAmount() : 0) // Assuming `getBillingAmount()` exists
                     .build();
@@ -201,7 +229,7 @@ public class TenantService {
         // Assuming this method should return a single DashBoardResponse or modify as needed
         return  dashBoardResponseList; // Modify based on your requirement
     }
-
+/*
     @Transactional
     public ResDTO<Object> editTenantSettings(Integer tenantAdminId , TenantDTO tenantDTO) {
         Optional<Profile> optionalProfile = profileRepository.findById(tenantAdminId);
@@ -216,9 +244,9 @@ public class TenantService {
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Data updated successfully");
         }
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.FAILURE, "Tenant Data not found");
-    }
+    }*/
 
-    @Transactional
+    /*@Transactional
     public ResDTO<Object> assignTenantAdmin(Long tenantId , Integer adminId) {
         try {
             Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
@@ -231,7 +259,7 @@ public class TenantService {
             return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE, e.getMessage());
         }
         return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS , "Admin assigned successfully");
-    }
+    }*/
 
     @Transactional
     public ResDTO<Object> assignUser(Long tenantId , Integer userId) {
@@ -254,5 +282,40 @@ public class TenantService {
             return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE, e.getMessage());
         }
         return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS , "user assigned successfully");
+    }
+
+    public ResDTO<List<TenantResponse>> getAllTenants() {
+      List<Tenant> tenantList = tenantRepository.findAll();
+      List<TenantResponse> tenantResponses = createTenantResponse(tenantList);
+      return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, tenantResponses);
+    }
+
+    public ResDTO<List<TenantResponse>> getFilterTenants(String orgName, String orgAdminName) {
+        List<Tenant> tenantList = tenantRepository.findAll();
+        List<Tenant> filteredTenants = tenantList.stream()
+                .filter(tenant -> orgName == null || orgName.isEmpty() || tenant.getOrgName().equalsIgnoreCase(orgName))
+                .filter(tenant -> orgAdminName == null || orgAdminName.isEmpty() ||
+                        (tenant.getTenantAdmin() != null && tenant.getTenantAdmin().getName().equalsIgnoreCase(orgAdminName)))
+                .collect(Collectors.toList());
+
+        List<TenantResponse> tenantResponses = createTenantResponse(filteredTenants);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, tenantResponses);
+    }
+
+    private List<TenantResponse> createTenantResponse(List<Tenant> tenantList) {
+        List<TenantResponse> tenantResponses = new ArrayList<>();
+        for (Tenant tenant : tenantList) {
+            TenantResponse tenantResponse = TenantResponse.builder()
+                    .id(tenant.getId())
+                    .tenantName(tenant.getTenantName())
+                    .orgAdminName(tenant.getTenantAdmin().getName())
+                    .orgAdminEmail(tenant.getTenantAdmin().getEmail())
+                    .orgName(tenant.getOrgName())
+                    .createdAt(tenant.getCreatedAt())
+                    .updatedAt(tenant.getUpdatedAt())
+                    .build();
+            tenantResponses.add(tenantResponse);
+        }
+        return tenantResponses;
     }
 }

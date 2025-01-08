@@ -3,6 +3,7 @@ package com.opensource.cloudnest.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public class Permission {
     private Long id;
     @Column(nullable = false)
     private String permissionName;
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    private String description;
+    private LocalDateTime createdAt;
+
 }

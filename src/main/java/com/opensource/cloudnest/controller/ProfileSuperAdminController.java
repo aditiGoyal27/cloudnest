@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = {"http://localhost:3000"})
+
 @RestController
 @RequestMapping("/profile/superAdmin")
 public class ProfileSuperAdminController {
@@ -19,11 +19,6 @@ public class ProfileSuperAdminController {
     @Autowired
     private ProfileSuperAdminService signUpAdminService;
 
-    @PostMapping("/create")
-    public ResponseEntity<ResDTO<Object>> createSuperAdmin(@RequestBody SignUpDTO signUpDTO) {
-        return new ResponseEntity<>(signUpAdminService.signUpSuperAdmin(signUpDTO), HttpStatus.OK);
-
-    }
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/getProfileDetails/{superAdminId}")
     public ResDTO<Object> getProfileDetails(HttpServletRequest request , @PathVariable Integer superAdminId) {
@@ -33,9 +28,12 @@ public class ProfileSuperAdminController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'PROFILE')")
     @PostMapping("/updateProfileDetails/{profileId}")
-    public ResponseEntity<ResDTO<Object>> updateProfileDetails(@PathVariable Integer profileId ,@RequestBody SignUpDTO signUpDTO) {
-        return new ResponseEntity<>(signUpAdminService.updateProfileDetails(profileId,signUpDTO), HttpStatus.OK);
+    public ResDTO<Object> updateProfileDetails(HttpServletRequest request ,@PathVariable Integer superAdminId,@PathVariable Integer profileId ,@RequestBody SignUpDTO signUpDTO) {
+        if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
+            return new ResDTO<>(Boolean.FALSE , ResDTOMessage.SUCCESS ,signUpAdminService.getProfileDetails());
+        }
+        return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, signUpAdminService.updateProfileDetails(profileId,signUpDTO));
     }
 }

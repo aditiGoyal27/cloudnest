@@ -1,0 +1,3 @@
+base.url = http://localhost:8080
+reset.password = /password/reset-request
+signup.url = /signup/verify-token

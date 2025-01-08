@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = {"http://localhost:3000"})
+
 @RestController
 @RequestMapping("/profile/admin")
 public class ProfileAdminController {
@@ -24,7 +24,7 @@ public class ProfileAdminController {
     @Autowired
     private ProfileRepository profileRepository;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'CREATE_ADMIN')")
     @PostMapping("/create/{superAdminId}/{tenantId}")
     public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Integer superAdminId, @PathVariable Long tenantId , HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {

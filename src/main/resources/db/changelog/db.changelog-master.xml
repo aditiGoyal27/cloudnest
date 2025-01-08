@@ -5,7 +5,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.10.xsd">
 
     <!-- Step 1: Create Role Table -->
-    <changeSet id="1" author="aditi">
+    <changeSet id="1" author="palak">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="tbl_role"/>
@@ -23,38 +23,92 @@
             </column>
             <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false" />
-<!--                <defaultValueComputed value="CURRENT_TIMESTAMP"/>-->
             </column>
-            <column name="updated_at" type="TIMESTAMP">
-            </column>
+            <column name="updated_at" type="TIMESTAMP"/>
         </createTable>
     </changeSet>
 
-
-
-
-    <!-- Step 4: Insert Initial Role Data -->
-    <changeSet id="2" author="aditi">
+    <!-- Step 2: Insert Initial Role Data -->
+    <changeSet id="2" author="palak">
         <insert tableName="tbl_role">
             <column name="name" value="ROLE_SUPER_ADMIN"/>
-            <column name="description" value ="ROLE_SUPER_ADMIN"/>
+            <column name="description" value="ROLE_SUPER_ADMIN"/>
             <column name="created_at" valueComputed="NOW()"/>
             <column name="updated_at" valueComputed="NOW()"/>
         </insert>
         <insert tableName="tbl_role">
             <column name="name" value="ROLE_ADMIN"/>
-            <column name="description" value ="ROLE_ADMIN"/>
+            <column name="description" value="ROLE_ADMIN"/>
             <column name="created_at" valueComputed="NOW()"/>
             <column name="updated_at" valueComputed="NOW()"/>
         </insert>
         <insert tableName="tbl_role">
             <column name="name" value="ROLE_USER"/>
-            <column name="description" value ="ROLE_USER"/>
+            <column name="description" value="ROLE_USER"/>
             <column name="created_at" valueComputed="NOW()"/>
             <column name="updated_at" valueComputed="NOW()"/>
         </insert>
     </changeSet>
 
+<!--
+    &lt;!&ndash; Step 3: Create Permission Table &ndash;&gt;
+    <changeSet id="3" author="palak">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tbl_permission"/>
+            </not>
+        </preConditions>
+        <createTable tableName="tbl_permission">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="permissionName" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
 
+    &lt;!&ndash; Step 4: Create role_permissions Table &ndash;&gt;
+    <changeSet id="4" author="palak">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="role_permissions"/>
+            </not>
+        </preConditions>
+        <createTable tableName="role_permissions">
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addDefaultValue tableName="role_permissions" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addPrimaryKey columnNames="role_id, permission_id" tableName="role_permissions"/>
+        <addForeignKeyConstraint
+                baseTableName="role_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="tbl_role"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                constraintName="fk_role_permissions_role"/>
+        <addForeignKeyConstraint
+                baseTableName="role_permissions"
+                baseColumnNames="permission_id"
+                referencedTableName="tbl_permission"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                constraintName="fk_role_permissions_permission"/>
+    </changeSet>
+-->
 
 </databaseChangeLog>
+
+

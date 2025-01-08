@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-@CrossOrigin(origins = {"http://localhost:3000"})
+
 @RestController
 @RequestMapping("/api/verify")
 public class EmailVerificationController {

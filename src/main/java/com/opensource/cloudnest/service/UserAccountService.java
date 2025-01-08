@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,41 +39,37 @@ public class UserAccountService {
     private EmailVerificationRepository emailVerificationRepository;
 
     @Autowired
-    private EmailVerificationService emailVerificationService;
+    private EmailService emailService;
+    @Autowired
+    private TokenService tokenService;
     @Transactional
-    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId) {
+    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId ,Long tenantId) {
         String name = signUpUserDTO.getName();
         String email = signUpUserDTO.getEmail();
-        String password =  passwordEncoder.encode(signUpUserDTO.getPassword());
         String contactNumber = signUpUserDTO.getContactNumber();
+        List<String> roles = signUpUserDTO.getRoles();
         Profile userAccount = new Profile();
         userAccount.setName(name);
         userAccount.setEmail(email);
-        userAccount.setPassword(password);
-        userAccount.setStatus("ACTIVE");
         userAccount.setContactNumber(contactNumber);
-        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
+        userAccount.setRoles(roles);
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
         role.ifPresent(userAccount::setRole);
+        Optional<Profile> optionalProfile = profileRepository.findById(adminId);
+        optionalProfile.ifPresent(userAccount::setAdmin);
         profileRepository.save(userAccount);
         Relation relation = new Relation();
-        Optional<Profile> optionalProfile = profileRepository.findByEmail(email);
+        Optional<Profile> optionalProfile1 = profileRepository.findByEmail(email);
         Optional<Profile> profile = profileRepository.findById(adminId);
-        if(optionalProfile.isPresent()) {
-            relation.setUserId(optionalProfile.get());
+        if(optionalProfile1.isPresent() && profile.isPresent()) {
+            relation.setUserId(optionalProfile1.get());
             relation.setAdminId(profile.get());
             relationRepository.save(relation);
         }
-        SecureRandom random = new SecureRandom();
-        StringBuilder otp = new StringBuilder(OTP_LENGTH);
-        for (int i = 0; i < OTP_LENGTH; i++) {
-            otp.append(random.nextInt(10)); // Generates a digit between 0-9
-        }
-        emailVerificationService.sendVerificationEmail(email, otp.toString());
-        EmailVerification verification = new EmailVerification();
-        verification.setEmail(email);
-        verification.setOtp(otp.toString());
-        verification.setCreatedAt(LocalDateTime.now());
-        emailVerificationRepository.save(verification);
+        String token = tokenService.createToken(email);
+        emailService.sendSignUpLink(email, token);
+        Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
+        optionalTenant.ifPresent(userAccount::setTenant);
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "User created successfully");
     }
@@ -105,6 +102,10 @@ public class UserAccountService {
             relation.setAdminId(profile.get());
             relationRepository.save(relation);
         }
+
+        String token = tokenService.createToken(email);
+        emailService.sendSignUpLink(email, token);
+
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "User Data Updated successfully");
     }
 

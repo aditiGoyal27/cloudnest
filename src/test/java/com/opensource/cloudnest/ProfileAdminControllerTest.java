@@ -67,10 +67,10 @@ public class ProfileAdminControllerTest {
 
     @BeforeEach
     void setUp() {
-        jwtToken = JwtTokenProvider.generateToken("aditiabc" , 1); // Simulate a valid JWT token
+        jwtToken = JwtTokenProvider.generateToken("palakabc" , 1); // Simulate a valid JWT token
 
         signUpDTO = new SignUpDTO();
-        signUpDTO.setUserName("testAdmin");
+        signUpDTO.setName("testAdmin");
         signUpDTO.setEmail("test@admin.com");
         signUpDTO.setPassword("password");
     }

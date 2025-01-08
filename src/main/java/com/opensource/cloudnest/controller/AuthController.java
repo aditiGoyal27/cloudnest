@@ -7,6 +7,7 @@ import com.opensource.cloudnest.dto.response.JwtResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
-@CrossOrigin(origins = {"http://localhost:3000"})
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -26,6 +28,8 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     @Autowired
     private ProfileRepository profileRepository;
+    @Autowired
+    private PermissionService permissionService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
@@ -50,6 +54,10 @@ public class AuthController {
         optionalProfile.ifPresent(profile -> jwtResponse.setName(profile.getName()));
         optionalProfile.ifPresent(profile -> jwtResponse.setEmail(profile.getEmail()));
         optionalProfile.ifPresent(profile -> jwtResponse.setStatus(profile.getStatus()));
+        optionalProfile.ifPresent(profile -> jwtResponse.setStatus(profile.getStatus()));
+        optionalProfile.ifPresent(profile -> jwtResponse.setRoleId(profile.getRole().getId()));
+        optionalProfile.ifPresent(profile -> jwtResponse.setRoleName(profile.getRole().getName()));
+        optionalProfile.ifPresent(profile -> jwtResponse.setPermissionResponse(permissionService.getAccessiblePermissionsByRole(profile.getRole().getName())));
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, jwtResponse);
 
     }

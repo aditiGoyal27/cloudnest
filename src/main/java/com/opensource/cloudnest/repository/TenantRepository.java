@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
-    Optional<Tenant> findByOrgUnitName(String orgName);
-    Optional<Tenant> findByOrgEmail(String orgEmail);
-    Tenant findByAdmin(Profile Admin);
+    Optional<Tenant> findByTenantAdmin(Profile Admin);
+    Optional<Tenant> findByTenantName(String tenantName);
 }

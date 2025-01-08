@@ -4,10 +4,9 @@ import lombok.Data;
 
 @Data
 public class TenantDTO {
+    private String tenantName;
     private String orgName;
-    private String orgUnitName;
-    private String orgLocation;
-    private String orgEmail;
-    private String orgContactNumber;
-    private String status;
+    private String orgAdminName;
+    private String orgAdminEmail;
+
 }

@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = {"http://localhost:3000"})
+
 @RestController
 @RequestMapping("/app/view")
 public class ViewController {
@@ -16,7 +16,7 @@ public class ViewController {
     @Autowired
     private ViewService viewService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') and hasPermission(#adminId, 'VIEW_PROFILE')")
     @GetMapping("/profile/{adminId}")
     public ResDTO<Object> viewProfile(HttpServletRequest request ,@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size,

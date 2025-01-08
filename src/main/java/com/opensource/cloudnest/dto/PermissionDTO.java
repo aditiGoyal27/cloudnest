@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
-@Getter
 @Setter
+@Getter
 @Data
 public class PermissionDTO {
-    private String permissionName;
-    private List<String> role;
+    private Map<Long, List<Long>> rolePermissionsMap; // Key: Role ID, Value: List of Permission IDs
+
 }

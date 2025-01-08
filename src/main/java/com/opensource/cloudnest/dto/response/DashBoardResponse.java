@@ -7,11 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @Builder
-public record DashBoardResponse(Long id , String orgName ,
-                                String orgUnitName , String orgLocation ,
-                                String orgEmail , String orgContactNumber ,
-                                String status  , Date createdAt ,
-                                Date updatedAt , String adminName ,
+public record DashBoardResponse(Long id , String tenantName , String orgName , String orgAdminName , String orgAdminEmail ,
                                 List<ProfileInfoResponse> profileInfoResponseList ,
                                 Long billingAmount) {
 }

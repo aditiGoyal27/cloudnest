@@ -1,11 +1,17 @@
 server:
-  port: 9090
+  port: 8081
 
 spring:
   application:
     name: cloudnest
+  data:
+    web:
+      projections:
+        enabled=false:
   datasource:
     url: jdbc:postgresql://localhost:5432/db_wavematrix_cloudnest
+  #    username: postgres
+  #    password: Shanti1995
   jpa:
     hibernate:
       ddl-auto: update  # This is correct, will not automatically update the schema
@@ -15,6 +21,8 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
     url: jdbc:postgresql://localhost:5432/db_wavematrix_cloudnest
+  #    user: postgres
+  #    password: Shanti1995
   mail:
     host: smtp.gmail.com
     port: 587
@@ -30,3 +38,5 @@ spring:
 logging:
   file:
     name: logs/application.log
+
+

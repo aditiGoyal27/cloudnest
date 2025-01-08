@@ -28,5 +28,12 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
+    @ManyToOne
+    @JoinColumn(name = "super_admin_id")
+    private Profile superAdmin;
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Profile admin;
+    private List<String> roles;
 
 }

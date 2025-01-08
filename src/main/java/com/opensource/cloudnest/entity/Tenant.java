@@ -6,6 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -20,25 +22,22 @@ public class Tenant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String orgName;
-    private String orgUnitName;
-    private String orgLocation;
-    private String orgEmail;
-    private String orgContactNumber;
-    private String status;
-
     @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private LocalDateTime createdAt;
+
     @LastModifiedDate
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
-    @OneToOne
-    private Profile admin;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Profile tenantAdmin;
 
-    @OneToMany(mappedBy = "tenant") // Set the mappedBy attribute to define ownership
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Profile> users;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BillingDetails billingDetails;
+
+    private String tenantName;
+    private  String orgName;
+    private String status;
 }

@@ -29,31 +29,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        // Extract Authorization header
         String header = request.getHeader("Authorization");
         String token = null;
         String username = null;
         Integer profileId = null;
 
+        // Validate Authorization header
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
-            username = jwtTokenProvider.getUsernameFromToken(token);
-            profileId = jwtTokenProvider.getProfileIdFromToken(token); // Retrieve profileId
-        }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (jwtTokenProvider.validateToken(token)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                // Optionally, you could log or store the profileId here if needed
-                request.setAttribute("profileId", profileId); // Make profileId available in request scope
+            try {
+                // Extract username and profileId
+                username = jwtTokenProvider.getUsernameFromToken(token);
+                profileId = jwtTokenProvider.getProfileIdFromToken(token);
+            } catch (Exception ex) {
+                // Handle invalid tokens gracefully
+                logger.error("Failed to parse token: " + ex.getMessage());
             }
         }
 
+        // Validate user and token
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            // Validate token
+            if (jwtTokenProvider.validateToken(token)) {
+                // Create authentication object and set in SecurityContext
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Set profileId attribute in request (optional, for downstream use)
+                request.setAttribute("profileId", profileId);
+            } else {
+                logger.warn("JWT token validation failed");
+            }
+        }
+
+        // Proceed with the filter chain
         chain.doFilter(request, response);
     }
 }

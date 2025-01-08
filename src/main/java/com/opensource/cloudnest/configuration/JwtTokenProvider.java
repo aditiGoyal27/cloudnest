@@ -1,21 +1,22 @@
 package com.opensource.cloudnest.configuration;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
+import java.util.logging.Logger;
 
 @Component
 public class JwtTokenProvider {
-
-    static SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private static final String BASE64_SECRET_KEY = "3csmqPngNI1D4WOUlUX+BxyNKUKeFza2P9mS2UwvSqW27znyQ9YOdNPR/idmrCkJBA/ONpVB5ONtWeH2Y9MPhw==";
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(Base64.getDecoder().decode(BASE64_SECRET_KEY));
     static private final long jwtExpirationInMs = 86400000; // 1 day in milliseconds
-
+    private org.slf4j.Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
     // Generate JWT Token
     public static String generateToken(String userName, Integer profileId) {
         Date now = new Date();
@@ -26,20 +27,25 @@ public class JwtTokenProvider {
                 .claim("profileId", profileId) // Store profileId as a separate claim
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(key)
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
     // Validate JWT Token
-    public static boolean validateToken(String authToken) {
+    public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .setSigningKey(key)
-                    .parseClaimsJws(authToken);
+                    .setSigningKey(SECRET_KEY) // Verify the key
+                    .parseClaimsJws(token);
             return true;
+        } catch (ExpiredJwtException ex) {
+            logger.error("Token expired: " + ex.getMessage());
+        } catch (SignatureException | MalformedJwtException ex) {
+            logger.error("Invalid token: " + ex.getMessage());
         } catch (Exception ex) {
-            return false;
+            logger.error("Token validation failed: " + ex.getMessage());
         }
+        return false; // Invalid token
     }
 
     // Validate profileId in token with the one in the request
@@ -56,7 +62,7 @@ public class JwtTokenProvider {
     // Get username from JWT token
     public static String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(key)
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
@@ -65,7 +71,7 @@ public class JwtTokenProvider {
     // Get profileId from JWT token
     public static Integer getProfileIdFromToken(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(key)
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("profileId", Integer.class); // Retrieve profileId from claim
@@ -80,7 +86,7 @@ public class JwtTokenProvider {
     // Get expiration date from token
     public static Date getExpirationDateFromToken(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(key)
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getExpiration();

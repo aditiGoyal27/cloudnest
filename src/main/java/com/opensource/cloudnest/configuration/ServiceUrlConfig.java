@@ -13,10 +13,15 @@ public class ServiceUrlConfig {
     @Value("${reset.password}")
     private String resetLink;
 
+    @Value("${signup.url}")
+    private String signUpLinkUrl;
     public String getResetLinkUrl() {
         return service1BaseUrl + resetLink;
     }
 
 
+    public String getSignUpLinkUrl() {
+        return service1BaseUrl + signUpLinkUrl;
+    }
 
 }
