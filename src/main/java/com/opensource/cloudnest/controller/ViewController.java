@@ -16,7 +16,7 @@ public class ViewController {
     @Autowired
     private ViewService viewService;
 
-    @PreAuthorize("hasRole('ADMIN') and hasPermission(#adminId, 'VIEW_PROFILE')")
+   // @PreAuthorize("hasRole('ADMIN') and hasPermission(#adminId, 'VIEW_PROFILE')")
     @GetMapping("/profile/{adminId}")
     public ResDTO<Object> viewProfile(HttpServletRequest request ,@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size,
