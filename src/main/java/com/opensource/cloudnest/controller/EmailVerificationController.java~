@@ -1,14 +1,10 @@
 package com.opensource.cloudnest.controller;
 
-import com.opensource.cloudnest.dto.ResDTO;
-import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.entity.EmailVerification;
 import com.opensource.cloudnest.entity.Profile;
 import com.opensource.cloudnest.repository.EmailVerificationRepository;
 import com.opensource.cloudnest.repository.ProfileRepository;
-import com.opensource.cloudnest.service.EmailService;
 import com.opensource.cloudnest.service.EmailVerificationService;
-import com.opensource.cloudnest.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +26,6 @@ public class EmailVerificationController {
 
     @Autowired
     private EmailVerificationService emailVerificationService;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private TokenService tokenService;
 
     @PostMapping("/email")
     public String verifyOtp(@RequestParam String email, @RequestParam String otp) {
@@ -86,17 +78,6 @@ public class EmailVerificationController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Profile not found for the provided email");
         }
-    }
-
-    @PostMapping("/resend-verification-email")
-    public ResDTO<Object> resendVerificationEmail(@RequestParam String email) {
-        Optional<Profile> optionalProfile = profileRepository.findByEmail(email);
-        if (optionalProfile.isPresent()) {
-            String token = tokenService.createToken(email);
-            emailService.sendSignUpLink(email, token);
-            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Verification email resent successfully");
-        }
-        return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Profile not found for the provided email");
     }
 
     private String generateOtp() {

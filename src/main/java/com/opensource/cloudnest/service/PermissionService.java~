@@ -25,7 +25,7 @@ public class PermissionService {
 
     public ResDTO<Object> addPermissionName(String permissionName) {
                 Permission permission = new Permission();
-                permission.setName(permissionName);
+                permission.setPermissionName(permissionName);
                 permission.setDescription("");
                 permission.setCreatedAt(LocalDateTime.now());
                 permissionRepository.save(permission);
@@ -120,7 +120,7 @@ public class PermissionService {
             for (Permission permission : permissions) {
                 PermissionWithRolesResponse response = new PermissionWithRolesResponse();
                 PermissionResponse permissionResponse = new PermissionResponse();
-                permissionResponse.setName(permission.getName());
+                permissionResponse.setName(permission.getPermissionName());
                 permissionResponse.setId(permission.getId());
                 response.setPermissionResponse(permissionResponse);
                 response.setRoleNames(role.getName());

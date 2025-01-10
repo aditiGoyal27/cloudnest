@@ -21,8 +21,7 @@ public class Tenant {
 
     public enum Status {
         ACTIVE,
-        INACTIVE,
-        SUSPENDED
+        INACTIVE
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

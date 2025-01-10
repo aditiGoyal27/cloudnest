@@ -28,7 +28,7 @@ public class ViewController {
 
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/filterProfile/{adminId}")
     public ResDTO<Object> filterProfile(HttpServletRequest request ,@RequestParam String name,
                                       @RequestParam String  email, @RequestParam String phoneNumber ,

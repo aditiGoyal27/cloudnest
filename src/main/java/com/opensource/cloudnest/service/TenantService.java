@@ -7,10 +7,7 @@ import com.opensource.cloudnest.dto.response.ProfileInfoResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.dto.response.TenantResponse;
 import com.opensource.cloudnest.entity.*;
-import com.opensource.cloudnest.repository.RoleRepository;
-import com.opensource.cloudnest.repository.TenantRepository;
-import com.opensource.cloudnest.repository.ProfileRepository;
-import com.opensource.cloudnest.repository.TokenRepository;
+import com.opensource.cloudnest.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -34,12 +31,15 @@ public class TenantService {
 
     @Autowired
     private TenantRepository tenantRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
     private ProfileRepository profileRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private RelationRepository relationRepository;
     @Autowired
     private TokenService tokenService;
     @Autowired
@@ -64,6 +64,7 @@ public class TenantService {
         tenant.setTenantName(tenantName);
         Optional<Profile> optionalProfile = profileRepository.findByEmail(orgAdminEmail);
         optionalProfile.ifPresent(tenant::setTenantAdmin);
+        tenant.setStatus(Tenant.Status.ACTIVE);
         tenantRepository.save(tenant);
         Optional<Profile> optionalProfile1 = profileRepository.findByEmail(orgAdminEmail);
         if(optionalProfile1.isPresent()){
@@ -111,16 +112,19 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> deleteTenant( Long organizationId) {
-
-        Optional<Tenant> optionalOrganizationUnit = tenantRepository.findById(organizationId);
-
-        if (optionalOrganizationUnit.isEmpty()) {
+    public ResDTO<Object> deleteTenant(Long organizationId) {
+        // Check if the tenant exists
+        Optional<Tenant> optionalTenant = tenantRepository.findById(organizationId);
+        if (optionalTenant.isEmpty()) {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Tenant not found");
         }
 
-
-        tenantRepository.delete(optionalOrganizationUnit.get());
+        Tenant tenant = optionalTenant.get();
+        List<Profile> users = tenant.getUsers();
+        for (Profile user : users) {
+            user.setEnabled(false);
+        }
+        tenant.setStatus(Tenant.Status.INACTIVE);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.DELETED_SUCCESSFULLY, "Tenant deleted successfully");
     }
 
@@ -131,7 +135,7 @@ public class TenantService {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");
         }
         Tenant tenant = optionalOrganizationUnit.get();
-        tenant.setStatus("INACTIVE");
+        tenant.setStatus(Tenant.Status.SUSPENDED);
         tenantRepository.save(tenant);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "Tenant Data suspended successfully");
     }
@@ -143,9 +147,9 @@ public class TenantService {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");
         }
         Tenant tenant = optionalOrganizationUnit.get();
-        tenant.setStatus("ACTIVE");
+        tenant.setStatus(Tenant.Status.ACTIVE);
         tenantRepository.save(tenant);
-        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "Tenant Data Activated successfully");
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "Tenant reactivated successfully");
     }
 
 
@@ -161,6 +165,9 @@ public class TenantService {
         Optional<Profile> optionalProfile = profileRepository.findById(tenantAdminId);
         if(optionalProfile.isPresent()) {
             Optional<Tenant> tenant = tenantRepository.findByTenantAdmin(optionalProfile.get());
+            if(tenant.get().getStatus().equals(Tenant.Status.INACTIVE)) {
+                return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Tenant Data cannot be viewed as it is deleted");
+            }
             DashBoardResponse dashBoardResponse = createDashBoardResponse(tenant.get());
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, dashBoardResponse);
         }
@@ -199,7 +206,7 @@ public class TenantService {
         List<DashBoardResponse> dashBoardResponseList = new ArrayList<>();
         for (Tenant tenant : tenantList) {
             List<ProfileInfoResponse> profileInfoResponseList = new ArrayList<>();
-            if(tenant.getUsers()!=null) {
+            if(tenant.getUsers()!=null && tenant.getStatus().equals(Tenant.Status.ACTIVE)) {
                 for (Profile profile : tenant.getUsers()) { // Assuming `getProfiles()` returns the profiles for the tenant
                     ProfileInfoResponse profileInfoResponse = ProfileInfoResponse.builder()
                             .id(profile.getId())
@@ -286,21 +293,44 @@ public class TenantService {
 
     public ResDTO<List<TenantResponse>> getAllTenants() {
       List<Tenant> tenantList = tenantRepository.findAll();
+      tenantList = tenantList.stream().filter(tenant -> tenant.getStatus().equals(Tenant.Status.ACTIVE)).collect(Collectors.toList());
       List<TenantResponse> tenantResponses = createTenantResponse(tenantList);
       return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, tenantResponses);
     }
 
     public ResDTO<List<TenantResponse>> getFilterTenants(String orgName, String orgAdminName) {
         List<Tenant> tenantList = tenantRepository.findAll();
+        // Convert inputs to lowercase for case-insensitive comparison
+        String lowerOrgName = orgName != null ? orgName.toLowerCase() : null;
+        String lowerOrgAdminName = orgAdminName != null ? orgAdminName.toLowerCase() : null;
+
         List<Tenant> filteredTenants = tenantList.stream()
-                .filter(tenant -> orgName == null || orgName.isEmpty() || tenant.getOrgName().equalsIgnoreCase(orgName))
-                .filter(tenant -> orgAdminName == null || orgAdminName.isEmpty() ||
-                        (tenant.getTenantAdmin() != null && tenant.getTenantAdmin().getName().equalsIgnoreCase(orgAdminName)))
+                .filter(tenant -> {
+                    // Filter by orgName (case-insensitive)
+                    if (lowerOrgName == null || lowerOrgName.isEmpty()) {
+                        return true;
+                    }
+                    String tenantOrgName = tenant.getOrgName();
+                    return tenantOrgName != null && tenantOrgName.toLowerCase().contains(lowerOrgName);
+                })
+                .filter(tenant -> {
+                    // Filter by orgAdminName (case-insensitive)
+                    if (lowerOrgAdminName == null || lowerOrgAdminName.isEmpty()) {
+                        return true;
+                    }
+                    if (tenant.getTenantAdmin() == null || tenant.getTenantAdmin().getName() == null) {
+                        return false;
+                    }
+                    String tenantAdminName = tenant.getTenantAdmin().getName();
+                    return tenantAdminName.toLowerCase().contains(lowerOrgAdminName);
+                })
                 .collect(Collectors.toList());
 
+        // Convert filtered tenants to response DTOs
         List<TenantResponse> tenantResponses = createTenantResponse(filteredTenants);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, tenantResponses);
     }
+
 
     private List<TenantResponse> createTenantResponse(List<Tenant> tenantList) {
         List<TenantResponse> tenantResponses = new ArrayList<>();

@@ -10,4 +10,4 @@ import java.util.Optional;
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
     Optional<Tenant> findByTenantAdmin(Profile Admin);
     Optional<Tenant> findByTenantName(String tenantName);
-}
+ }

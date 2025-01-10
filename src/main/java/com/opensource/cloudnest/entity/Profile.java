@@ -22,7 +22,7 @@ public class Profile {
     @JoinColumn(name = "role_id")
     private Role role;
     private String status;
-    private boolean enabled = false;
+    private boolean enabled = true;
     @ManyToMany
     private List<Relation> relation;
     @ManyToOne
@@ -34,6 +34,6 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "admin_id")
     private Profile admin;
-    private List<String> roles;
+    private String assignedRole;
 
 }

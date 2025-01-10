@@ -12,16 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
-
-@CrossOrigin(origins = { "http://mdmdev.elements91.in", "http://10.10.2.12:3000", "http://10.10.2.21:3000", "http://localhost:3000", "https://mdmdev.elements91.in"})
 @RestController
 @RequestMapping("/tenant")
 public class TenantController {
 
     @Autowired
     private TenantService tenantService;
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'CREATE_TENANT')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/create/{superAdminId}")
     public ResDTO<Object> createTenant(HttpServletRequest request , @PathVariable Integer superAdminId , @RequestBody TenantDTO tenantDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -32,16 +29,16 @@ public class TenantController {
 
 
 
-    @PreAuthorize("hasAnyRole('ADMIN') and hasPermission(#adminId, 'ASSIGN_USER')")
-    @PostMapping("/assignUser/{adminId}")
+    /*@PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/assignUser/{tenanadminId}")
     public ResDTO<Object> assignUser(HttpServletRequest request ,@RequestParam Long tenantId, @RequestParam Integer userId , @PathVariable Integer adminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, adminId)) {
             return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS ,tenantService.assignUser(tenantId , userId));
         }
         return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE , "Invalid Data");
-    }
+    }   */
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and hasPermission(#superAdminId, 'UPDATE_TENANT')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/update/{superAdminId}/{tenantId}")
     public ResDTO<Object> updateTenant(HttpServletRequest request ,@PathVariable Integer superAdminId ,@PathVariable Long tenantId,@RequestBody TenantDTO tenantDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -50,7 +47,7 @@ public class TenantController {
         return new ResDTO<>(Boolean.FALSE ,ResDTOMessage.FAILURE, "Invalid Data");
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'DELETE_TENANT')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/delete/{superAdminId}")
     public ResDTO<Object> deleteTenant(@RequestParam Long tenantId , HttpServletRequest request , @PathVariable Integer superAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -60,7 +57,7 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'SUSPEND_TENANT')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/suspend/{superAdminId}")
     public ResDTO<Object> suspendTenant(@RequestParam Long tenantId , HttpServletRequest request , @PathVariable Integer superAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -70,7 +67,8 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'REACTIVATE_TENANT')")
+
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/reactivate/{superAdminId}")
     public ResDTO<Object> reactivateTenant(HttpServletRequest request ,@RequestParam Long tenantId , @PathVariable Integer superAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -80,7 +78,7 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'SUPER_ADMIN_DASHBOARD')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/superAdmin/dashboard/{superAdminId}")
     public ResDTO<Object> dashboard(HttpServletRequest request , @PathVariable Integer superAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -89,7 +87,7 @@ public class TenantController {
         return new ResDTO<>(Boolean.FALSE , ResDTOMessage.FAILURE , "Invalid Data");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN') and hasPermission(#tenantAdminId, 'ADMIN_DASHBOARD')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/dashboard/tenantAdmins")
     public ResDTO<Object> dashboardTenantAdmins(HttpServletRequest request ,@PathVariable Integer tenantAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, tenantAdminId)) {
@@ -99,7 +97,7 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'GET_ALL_TENANTS')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/getAllTenants")
     public ResDTO<Object> getAllTenants(HttpServletRequest request ,@RequestParam Integer superAdminId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
@@ -109,8 +107,8 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'GET_FILTER_TENANTS')")
-    @GetMapping("/admin/getFilterTenants")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @GetMapping("/getFilterTenants")
     public ResDTO<Object> getFilterTenants(HttpServletRequest request , @RequestParam Integer superAdminId ,@RequestParam String orgName , @RequestParam String orgAdminName) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
             return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS ,tenantService.getFilterTenants(orgName , orgAdminName));

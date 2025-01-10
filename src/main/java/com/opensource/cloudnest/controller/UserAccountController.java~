@@ -56,7 +56,7 @@ public class UserAccountController {
     }
 
     @PreAuthorize("hasRole('ADMIN') and hasPermission(#adminId, 'REACTIVATE_USER')")
-    @PostMapping("/reactivate")
+    @PostMapping("/suspend")
     public ResDTO<Object> reactivateUser(HttpServletRequest request, @RequestParam Integer adminId , @RequestParam Integer userId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, adminId)) {
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS ,userAccountService.suspendUser(adminId , userId));

@@ -57,6 +57,7 @@ public class SecurityConfig  {
                         .requestMatchers("/permission/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("app/view/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

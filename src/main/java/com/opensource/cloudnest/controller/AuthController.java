@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = { "http://mdmdev.elements91.in", "http://10.10.2.12:3000", "http://10.10.2.21:3000", "http://localhost:3000", "https://mdmdev.elements91.in"})
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -47,6 +46,9 @@ public class AuthController {
         Optional<Profile> optionalProfile = profileRepository.findByEmail(loginRequest.getEmail());
         if(optionalProfile.isEmpty()) {
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.FAILURE, "Profile does not exist");
+        }
+        if(!optionalProfile.get().isEnabled()) {
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.FAILURE, "Profile is inactive");
         }
         String token = jwtTokenProvider.generateToken(loginRequest.getEmail(), optionalProfile.get().getId() );
 

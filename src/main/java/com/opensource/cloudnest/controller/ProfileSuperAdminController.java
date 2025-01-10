@@ -12,9 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
-
-@CrossOrigin(origins = { "http://mdmdev.elements91.in", "http://10.10.2.12:3000", "http://10.10.2.21:3000", "http://localhost:3000", "https://mdmdev.elements91.in"})
 @RestController
 @RequestMapping("/profile/superAdmin")
 public class ProfileSuperAdminController {
@@ -31,7 +28,7 @@ public class ProfileSuperAdminController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'PROFILE')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'UPDATE_PROFILE')")
     @PostMapping("/updateProfileDetails/{profileId}")
     public ResDTO<Object> updateProfileDetails(HttpServletRequest request ,@PathVariable Integer superAdminId,@PathVariable Integer profileId ,@RequestBody SignUpDTO signUpDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {

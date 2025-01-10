@@ -11,5 +11,6 @@ public class SignUpDTO {
     private String email;
     private String password;
     private String contactNumber;
-    private List<String> roles;
+    private String assignedRole;
+
     }

@@ -20,9 +20,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-
-
-@CrossOrigin(origins = { "http://mdmdev.elements91.in", "http://10.10.2.12:3000", "http://10.10.2.21:3000", "http://localhost:3000", "https://mdmdev.elements91.in"})
 @RestController
 @RequestMapping("/signup")
 public class SignupController {
@@ -36,24 +33,32 @@ public class SignupController {
     private SignUpService signUpService;
 
     @GetMapping("/verify-token")
-    public ResponseEntity<Object> verifyTokenAndRedirect(@RequestParam("token") String token) {
+    public ResDTO<Object> verifyTokenAndRedirect(@RequestParam("token") String token) {
         Optional<Token> validToken = tokenService.validateToken(token);
 
         if (validToken.isPresent()) {
             Optional<Profile> optionalProfile = profileRepository.findByEmail(validToken.get().getEmail());
             if (optionalProfile.isPresent()) {
                 Profile profile = optionalProfile.get();
+                if(profile.getStatus().equalsIgnoreCase("ACTIVE")){
+                    return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Email already verified");
+                }
                 profile.setStatus("ACTIVE");
                 profile.setEnabled(true);
                 profileRepository.save(profile);
             }
+            else{
+                return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Invalid email");
+
+            }
+
 
             // Return the redirection URL instead of redirecting
-            String redirectUrl = "/signup-page?email=" + validToken.get().getEmail();
-            return ResponseEntity.ok(Map.of("redirectUrl", redirectUrl, "message", "Token is valid."));
+            String email = validToken.get().getEmail();
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, ""+email);
         } else {
             // Token is invalid or expired
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired token."));
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Invalid or expired token");
         }
     }
 

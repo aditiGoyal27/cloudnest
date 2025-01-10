@@ -47,12 +47,12 @@ public class UserAccountService {
         String name = signUpUserDTO.getName();
         String email = signUpUserDTO.getEmail();
         String contactNumber = signUpUserDTO.getContactNumber();
-        List<String> roles = signUpUserDTO.getRoles();
+        String assignedRole = signUpUserDTO.getAssignedRole();
         Profile userAccount = new Profile();
         userAccount.setName(name);
         userAccount.setEmail(email);
         userAccount.setContactNumber(contactNumber);
-        userAccount.setRoles(roles);
+        userAccount.setAssignedRole(assignedRole);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
         role.ifPresent(userAccount::setRole);
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
@@ -93,6 +93,7 @@ public class UserAccountService {
         userAccount.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
         role.ifPresent(userAccount::setRole);
+        userAccount.setAssignedRole(signUpDTO.getAssignedRole());
         profileRepository.save(userAccount);
         Relation relation = new Relation();
         Optional<Profile> optionalProfile = profileRepository.findByEmail(email);
@@ -118,8 +119,9 @@ public class UserAccountService {
         if (optionalUserAccount.isEmpty()) {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
         }
-        relationRepository.deleteByUserId(optionalUserAccount.get());
-        profileRepository.delete(optionalUserAccount.get());
+
+        optionalUserAccount.get().setEnabled(false);
+        profileRepository.save(optionalUserAccount.get());
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.DELETED_SUCCESSFULLY, "user data deleted successfully");
     }
 
@@ -131,10 +133,24 @@ public class UserAccountService {
         }
         Profile userAccount = optionalUserAccount.get();
         userAccount.setStatus("INACTIVE");
+        userAccount.setEnabled(false);
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "User Data suspended successfully");
     }
 
 
+
+    @Transactional
+    public ResDTO<Object> reactivateUser(Integer adminId , Integer userId) {
+        Optional<Profile> optionalUserAccount = profileRepository.findById(userId);
+        if(optionalUserAccount.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");
+        }
+        Profile userAccount = optionalUserAccount.get();
+        userAccount.setStatus("ACTIVE");
+        userAccount.setEnabled(true);
+        profileRepository.save(userAccount);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "User Reactivated successfully");
+    }
 }
 

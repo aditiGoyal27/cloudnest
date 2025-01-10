@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
-@CrossOrigin(origins = { "http://mdmdev.elements91.in", "http://10.10.2.12:3000", "http://10.10.2.21:3000", "http://localhost:3000", "https://mdmdev.elements91.in"})
 @RestController
 @RequestMapping("/permission")
 public class PermissionController {
@@ -28,38 +26,38 @@ public class PermissionController {
     @Autowired
     private ProfileAdminService profileAdminService;
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-    @PostMapping("/addPermissionName/{superAdminId}")
-    public ResponseEntity<ResDTO<Object>> addPermissionName(@RequestParam String name , @PathVariable Integer superAdminId, HttpServletRequest request) {
-        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, superAdminId), HttpStatus.UNAUTHORIZED);
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(#Id, 'ADD_PERMISSION_NAME')" )
+    @PostMapping("/addPermissionName/{Id}")
+    public ResponseEntity<ResDTO<Object>> addPermissionName(@RequestParam String name , @PathVariable Integer Id, HttpServletRequest request) {
+        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, Id)) {
+            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, Id), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(permissionService.addPermissionName(name), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(#superAdminId, 'GET_PERMISSION_NAME')")
-    @GetMapping("/getPermissionName/{superAdminId}")
-    public ResponseEntity<ResDTO<Object>> getPermissions( @PathVariable Integer superAdminId, HttpServletRequest request) {
-        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, superAdminId), HttpStatus.UNAUTHORIZED);
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(#Id, 'GET_PERMISSION_NAME')" )
+    @GetMapping("/getPermissionName/{Id}")
+    public ResponseEntity<ResDTO<Object>> getPermissions( @PathVariable Integer Id, HttpServletRequest request) {
+        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, Id)) {
+            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, Id), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(permissionService.getPermissions(), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN' ,'ADMIN')")
-    @PostMapping("/add/{superAdminId}")
-    public ResponseEntity<ResDTO<Object>> addPermissionToRole(@RequestBody PermissionDTO permissionDTO , @PathVariable Integer superAdminId, HttpServletRequest request) {
-        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, superAdminId), HttpStatus.UNAUTHORIZED);
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN' ,'ADMIN') and hasPermission(#Id, 'ADD_PERMISSION_TO_ROLE')" )
+    @PostMapping("/add/{Id}")
+    public ResponseEntity<ResDTO<Object>> addPermissionToRole(@RequestBody PermissionDTO permissionDTO , @PathVariable Integer Id, HttpServletRequest request) {
+        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, Id)) {
+            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, Id), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(permissionService.addPermission(permissionDTO), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(#superAdminId, 'GET_ALL_PERMISSIONS_TO_ROLE')")
-    @GetMapping("/getALLPermissionsToRole/{superAdminId}")
-    public ResponseEntity<ResDTO<Object>> getPermissionToRole (@PathVariable Integer superAdminId, HttpServletRequest request) {
-        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, superAdminId), HttpStatus.UNAUTHORIZED);
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(#Id, 'GET_PERMISSION_TO_ROLE')" )
+    @GetMapping("/getALLPermissionsToRole/{Id}")
+    public ResponseEntity<ResDTO<Object>> getPermissionToRole (@PathVariable Integer Id, HttpServletRequest request) {
+        if (!JwtTokenProvider.validateProfileIdInAccessToken(request, Id)) {
+            return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, Id), HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(permissionService.getAllPermissionsWithRoles(), HttpStatus.OK);
     }

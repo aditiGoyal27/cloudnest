@@ -54,17 +54,6 @@ public class SignUpService {
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(profile::setRole);
         SecureRandom random = new SecureRandom();
-        StringBuilder otp = new StringBuilder(OTP_LENGTH);
-        for (int i = 0; i < OTP_LENGTH; i++) {
-            otp.append(random.nextInt(10)); // Generates a digit between 0-9
-        }
-        emailVerificationService.sendVerificationEmail(email, otp.toString());
-        emailVerificationService.sendVerificationEmail(email, otp.toString());
-        EmailVerification verification = new EmailVerification();
-        verification.setEmail(email);
-        verification.setOtp(otp.toString());
-        verification.setCreatedAt(LocalDateTime.now());
-        emailVerificationRepository.save(verification);
         profileRepository.save(profile);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
 

@@ -21,7 +21,7 @@ public class ServiceUrlConfig {
 
 
     public String getSignUpLinkUrl() {
-        return signUpLinkUrl;
+        return service1BaseUrl + signUpLinkUrl;
     }
 
 }

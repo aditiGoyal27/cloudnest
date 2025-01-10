@@ -77,48 +77,34 @@ public class ViewService {
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, pageResponse);
     }
 
-    public ResDTO<Object> filterProfile(String name, String email, String phoneNumber, Integer adminId) {
-        // Validate admin profile
+    public ResDTO<List<TenantResponse>> filterProfile(String name , String email ,String phoneNumber ) {
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
-        if (optionalProfile.isEmpty()) {
-            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No data found for the given adminId");
+        if(optionalProfile.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No data found");
         }
-
-        // Fetch all relations linked to the adminId
         List<Relation> relationList = relationRepository.findByAdminId(optionalProfile.get());
-        if (relationList.isEmpty()) {
-            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No relations found for the given adminId");
-        }
+        List<ProfileInfoResponse> profileInfoResponses = new ArrayList<>();
 
-        // Fetch and filter profiles based on name, email, and phoneNumber
-        List<ProfileInfoResponse> profileInfoResponses = relationList.stream()
-                .map(relation -> profileRepository.findById(relation.getUserId().getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(profile ->
-                        (name == null || profile.getName().toLowerCase().contains(name.toLowerCase())) &&
-                                (email == null || profile.getEmail().toLowerCase().contains(email.toLowerCase())) &&
-                                (phoneNumber == null || profile.getContactNumber().contains(phoneNumber))
-                )
-                .map(profile -> new ProfileInfoResponse(
+        // Fetch profiles for each userId linked to the adminId
+        for (Relation relation : relationList) {
+            Optional<Profile> profileOptional = profileRepository.findById(relation.getUserId().getId());
+            profileOptional.ifPresent(profile -> {
+                ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(
                         profile.getId(),
                         profile.getName(),
                         profile.getPassword(),
                         profile.getEmail(),
-                        profile.getRole().getName(),
+                        profile.getRole().getName().toString(),
                         profile.getStatus(),
-                        profile.getTenant() != null ? profile.getTenant().getId() : 0,
+                        profile.getTenant()!=null ? profile.getTenant().getId() : 0,
                         profile.isEnabled()
-                ))
-                .collect(Collectors.toList());
-
-        if (profileInfoResponses.isEmpty()) {
-            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No matching profiles found");
+                );
+                profileInfoResponses.add(profileInfoResponse);
+            });
         }
 
-        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, profileInfoResponses);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, tenantResponses);
     }
-
 
 
 

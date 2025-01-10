@@ -13,7 +13,8 @@ import java.util.logging.Logger;
 
 @Component
 public class JwtTokenProvider {
-    private static final String BASE64_SECRET_KEY = "3csmqPngNI1D4WOUlUX+BxyNKUKeFza2P9mS2UwvSqW27znyQ9YOdNPR/idmrCkJBA/ONpVB5ONtWeH2Y9MPhw==";
+
+    private static final String BASE64_SECRET_KEY = Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded());
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(Base64.getDecoder().decode(BASE64_SECRET_KEY));
     static private final long jwtExpirationInMs = 86400000; // 1 day in milliseconds
     private org.slf4j.Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
