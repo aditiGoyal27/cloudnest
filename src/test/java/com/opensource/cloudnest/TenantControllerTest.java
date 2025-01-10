@@ -53,7 +53,7 @@ public class TenantControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        jwtToken = JwtTokenProvider.generateToken("palakabc" , 1); // Simulate a valid JWT token
+        jwtToken = JwtTokenProvider.generateToken("aditiabc" , 1); // Simulate a valid JWT token
         tenantDTO = new TenantDTO();
         tenantDTO.setStatus("active");
         tenantDTO.setOrgName("abcTest");

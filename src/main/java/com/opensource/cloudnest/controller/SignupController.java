@@ -40,7 +40,7 @@ public class SignupController {
             Optional<Profile> optionalProfile = profileRepository.findByEmail(validToken.get().getEmail());
             if (optionalProfile.isPresent()) {
                 Profile profile = optionalProfile.get();
-                if(profile.getStatus().equalsIgnoreCase("ACTIVE")){
+                if(profile.getStatus()!=null && profile.getStatus().equalsIgnoreCase("ACTIVE")){
                     return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Email already verified");
                 }
                 profile.setStatus("ACTIVE");

@@ -5,7 +5,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.10.xsd">
 
     <!-- Step 1: Create Role Table -->
-    <changeSet id="1" author="palak">
+    <changeSet id="1" author="aditi">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="tbl_role"/>
@@ -29,7 +29,7 @@
     </changeSet>
 
     <!-- Step 2: Insert Initial Role Data -->
-    <changeSet id="2" author="palak">
+    <changeSet id="2" author="aditi">
         <insert tableName="tbl_role">
             <column name="name" value="ROLE_SUPER_ADMIN"/>
             <column name="description" value="ROLE_SUPER_ADMIN"/>
@@ -50,9 +50,7 @@
         </insert>
     </changeSet>
 
-<!--
-    &lt;!&ndash; Step 3: Create Permission Table &ndash;&gt;
-    <changeSet id="3" author="palak">
+    <changeSet id="3" author="aditi">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="tbl_permission"/>
@@ -62,18 +60,61 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="permissionName" type="VARCHAR(255)">
+            <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="description" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="created_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
+    <changeSet id="4" author="aditi">
+        <insert tableName="tbl_permission">
+            <column name="name" value="CREATE_USER"/>
+            <column name="description" value="Create User"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="UPDATE_USER"/>
+            <column name="description" value="Update user"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="DELETE_USER"/>
+            <column name="description" value="Delete user"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="SUSPEND_USER"/>
+            <column name="description" value="Suspend User"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="ADD_PERMISSION_NAME"/>
+            <column name="description" value="Add Permission Name"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="GET_PERMISSION_NAME"/>
+            <column name="description" value="Get Permission Name"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="ADD_PERMISSION_TO_ROLE"/>
+            <column name="description" value="Add Permission To Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="GET_PERMISSION_TO_ROLE"/>
+            <column name="description" value="Get Permission To Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+    </changeSet>
 
-    &lt;!&ndash; Step 4: Create role_permissions Table &ndash;&gt;
-    <changeSet id="4" author="palak">
+    <changeSet id="5" author="aditi">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="role_permissions"/>
@@ -90,8 +131,7 @@
                 <constraints nullable="true"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="role_permissions" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
-        <addPrimaryKey columnNames="role_id, permission_id" tableName="role_permissions"/>
+        <addPrimaryKey columnNames="role_id, permission_id" tableName="role_permissions" constraintName="pk_role_permissions"/>
         <addForeignKeyConstraint
                 baseTableName="role_permissions"
                 baseColumnNames="role_id"
@@ -99,6 +139,7 @@
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 constraintName="fk_role_permissions_role"/>
+
         <addForeignKeyConstraint
                 baseTableName="role_permissions"
                 baseColumnNames="permission_id"
@@ -107,8 +148,88 @@
                 onDelete="CASCADE"
                 constraintName="fk_role_permissions_permission"/>
     </changeSet>
--->
+
+    <changeSet id="6" author="aditi">
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="1"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="2"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="3"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="4"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="5"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="6"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="7"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="1"/>
+            <column name="permission_id" value="8"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="1"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="2"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="3"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="4"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="5"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="6"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="7"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="role_permissions">
+            <column name="role_id" value="2"/>
+            <column name="permission_id" value="8"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+    </changeSet>
 
 </databaseChangeLog>
-
-
