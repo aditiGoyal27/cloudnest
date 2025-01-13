@@ -6,8 +6,9 @@ import java.util.List;
 
 @Data
 public class PermissionWithRolesResponse {
-    private String roleNames; // List of role names associated with this permission
+    private String roleName; // List of role names associated with this permission
     private Long roleId;
-    private PermissionResponse permissionResponse;
+    private List<String> permissionName;
+    private List<Long> permissionId;
 
 }

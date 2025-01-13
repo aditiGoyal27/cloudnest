@@ -1,0 +1,106 @@
+package com.opensource.cloudnest.service;
+
+import com.opensource.cloudnest.dto.ResDTO;
+import com.opensource.cloudnest.dto.SignUpDTO;
+import com.opensource.cloudnest.dto.response.ProfileInfoResponse;
+import com.opensource.cloudnest.dto.response.ResDTOMessage;
+import com.opensource.cloudnest.entity.EmailVerification;
+import com.opensource.cloudnest.entity.Role;
+import com.opensource.cloudnest.entity.RoleEnum;
+import com.opensource.cloudnest.entity.Profile;
+import com.opensource.cloudnest.repository.EmailVerificationRepository;
+import com.opensource.cloudnest.repository.ProfileRepository;
+import com.opensource.cloudnest.repository.RoleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class ProfileSuperAdminService {
+
+    private static final int OTP_LENGTH = 6;
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
+    @Autowired
+    private EmailVerificationRepository emailVerificationRepository;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Transactional
+    public ResDTO<Object> signUpSuperAdmin(SignUpDTO signUpAdminDTO) {
+      String name = signUpAdminDTO.getName();
+      String email = signUpAdminDTO.getEmail();
+      String contactNumber = signUpAdminDTO.getContactNumber();
+      String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
+      Profile superAdmin = new Profile();
+      superAdmin.setName(name);
+      superAdmin.setEmail(email);
+      superAdmin.setContactNumber(contactNumber);
+      superAdmin.setPassword(password);
+      superAdmin.setStatus("ACTIVE");
+      Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
+      role.ifPresent(superAdmin::setRole);
+      String token = tokenService.createToken(email);
+      emailService.sendSignUpLink(email, token);
+      profileRepository.save(superAdmin);
+      return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Super Admin created successfully");
+    }
+
+    public ResDTO<Object> getProfileDetails() {
+        List<Profile> profileList = profileRepository.findAll();
+        List<ProfileInfoResponse> profileInfoResponseList = new ArrayList<>();
+        for(Profile profile : profileList) {
+            ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(profile.getId() , profile.getName(),
+                    profile.getPassword() , profile.getEmail() , profile.getRole().getName(), profile.getStatus(),profile.getTenant()!=null ? profile.getTenant().getId() : 0,
+                    profile.isEnabled());
+            profileInfoResponseList.add(profileInfoResponse);
+        }
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, profileInfoResponseList);
+    }
+
+    @Transactional
+    public ResDTO<Object> updateProfileDetails(Integer profileId ,SignUpDTO signUpAdminDTO) {
+        Optional<Profile> optionalProfile = profileRepository.findById(profileId);
+        if(optionalProfile.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "ProfileId not found");
+        }
+
+        Profile profile = optionalProfile.get();
+        String name = signUpAdminDTO.getName();
+        String email = signUpAdminDTO.getEmail();
+        String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
+        String contactNumber = signUpAdminDTO.getContactNumber();
+        profile.setName(name);
+        profile.setEmail(email);
+        profile.setPassword(password);
+        profile.setContactNumber(contactNumber);
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
+        role.ifPresent(profile::setRole);
+        String token = tokenService.createToken(email);
+        emailService.sendSignUpLink(email, token);
+        profileRepository.save(profile);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "ProfileId data updated successfully");
+    }
+}

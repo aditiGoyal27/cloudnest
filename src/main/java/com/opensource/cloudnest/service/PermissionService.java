@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
@@ -110,31 +111,39 @@ public class PermissionService {
     }
 
     public ResDTO<Object> getAllPermissionsWithRoles() {
+        // Fetch all roles and permissions from the database
         List<Role> allRoles = roleRepository.findAll();
-        List<PermissionWithRolesResponse> responseList = new ArrayList<>();
+        List<Permission> allPermissions = permissionRepository.findAll();
 
-        for (Role role : allRoles) {
-            //Optional<Permission> permissionOpt = role.getPermissions().stream().findFirst();
-            Set<Permission> permissions = role.getPermissions(); // assuming that the Role entity has a relationship with Permission>
+        // Create a list for the response
+        List<Map<String, Object>> permissionsResponse = new ArrayList<>();
 
-            for (Permission permission : permissions) {
-                PermissionWithRolesResponse response = new PermissionWithRolesResponse();
-                PermissionResponse permissionResponse = new PermissionResponse();
-                permissionResponse.setName(permission.getName());
-                permissionResponse.setId(permission.getId());
-                response.setPermissionResponse(permissionResponse);
-                response.setRoleNames(role.getName());
-                response.setRoleId(role.getId());
-                responseList.add(response);
-            }
-            // Get the roles associated with this permission
+        // Iterate over all permissions
+        for (Permission permission : allPermissions) {
+            // Find roles associated with this permission
+            List<Map<String, Object>> associatedRoles = allRoles.stream()
+                    .filter(role -> role.getPermissions().contains(permission)) // Check if the role has this permission
+                    .map(role -> {
+                        Map<String, Object> roleData = new HashMap<>();
+                        roleData.put("id", role.getId());
+                        roleData.put("name", role.getName());
+                        return roleData;
+                    })
+                    .collect(Collectors.toList());
 
+            // Build the permission response with associated roles
+            Map<String, Object> permissionData = new HashMap<>();
+            permissionData.put("PermissionId", permission.getId());
+            permissionData.put("PermissionName", permission.getName());
+            permissionData.put("roles", associatedRoles);
 
+            permissionsResponse.add(permissionData);
         }
-        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS , responseList);
+
+        // Create the final JSON structure
+        Map<String, Object> response = new HashMap<>();
+        response.put("permissions", permissionsResponse);
+
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, response);
     }
-
-
-
-
 }

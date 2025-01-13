@@ -36,7 +36,6 @@ public class SignUpService {
 
     @Transactional
     public ResDTO<Object> completeSignup(SignUpDTO signUpAdminDTO) {
-        String name = signUpAdminDTO.getName();
         String email = signUpAdminDTO.getEmail();
         String contactNumber = signUpAdminDTO.getContactNumber();
         String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
@@ -51,7 +50,6 @@ public class SignUpService {
         Profile profile = new Profile();
         profile.setEmail(email);
         profile.setPassword(password);
-        profile.setName(name);
         profile.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(profile::setRole);
