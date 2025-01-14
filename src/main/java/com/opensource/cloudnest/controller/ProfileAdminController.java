@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/profile/admin")
@@ -24,12 +23,13 @@ public class ProfileAdminController {
 
     @Autowired
     private ProfileRepository profileRepository;
-
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'CREATE_ADMIN')")
-    @PostMapping("/create/{superAdminId}/{tenantId}")
-    public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Integer superAdminId, @PathVariable Long tenantId , HttpServletRequest request) {
-        if (JwtTokenProvider.validateProfileIdInAccessToken(request, superAdminId)) {
-            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS , profileAdminService.signUpAdmin(signUpDTO, superAdminId ,tenantId ));
+    @PostMapping("/create/{tenantId}")
+    public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Long tenantId , HttpServletRequest request) {
+        if (JwtTokenProvider.validateProfileIdInAccessToken(request ,profileRepository)) {
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS , profileAdminService.signUpAdmin(signUpDTO, jwtTokenProvider.getProfileFromRequest(request) ,tenantId ));
         }
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
     }

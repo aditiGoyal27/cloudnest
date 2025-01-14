@@ -36,6 +36,7 @@ public class SignUpService {
 
     @Transactional
     public ResDTO<Object> completeSignup(SignUpDTO signUpAdminDTO) {
+        String name = signUpAdminDTO.getName();
         String email = signUpAdminDTO.getEmail();
         String contactNumber = signUpAdminDTO.getContactNumber();
         String password =  passwordEncoder.encode(signUpAdminDTO.getPassword());
@@ -44,16 +45,19 @@ public class SignUpService {
             Profile profile = optionalProfile.get();
             profile.setPassword(password);
             profile.setContactNumber(contactNumber);
+            profile.setUpdatedOn(LocalDateTime.now());
             profileRepository.save(profile);
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
         }
         Profile profile = new Profile();
         profile.setEmail(email);
         profile.setPassword(password);
+        profile.setName(name);
         profile.setContactNumber(contactNumber);
+        profile.setCreatedOn(LocalDateTime.now());
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(profile::setRole);
-        SecureRandom random = new SecureRandom();
+        Optional<Profile> optionalProfile1 = profileRepository.findByRole(role.get();
         profileRepository.save(profile);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
 

@@ -43,17 +43,16 @@ public class UserAccountService {
     @Autowired
     private TokenService tokenService;
     @Transactional
-    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId ,Long tenantId) {
+    public ResDTO<Object> createUser(SignUpDTO signUpUserDTO , Integer adminId ) {
         String name = signUpUserDTO.getName();
         String email = signUpUserDTO.getEmail();
         String contactNumber = signUpUserDTO.getContactNumber();
-        String assignedRole = signUpUserDTO.getAssignedRole();
         Profile userAccount = new Profile();
         userAccount.setName(name);
         userAccount.setEmail(email);
+        userAccount.setStatus("ACTIVE");
         userAccount.setContactNumber(contactNumber);
-        userAccount.setAssignedRole(assignedRole);
-        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
+        Optional<Role> role = roleRepository.findByName(signUpUserDTO.getRole());
         role.ifPresent(userAccount::setRole);
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
         optionalProfile.ifPresent(userAccount::setAdmin);
@@ -61,6 +60,9 @@ public class UserAccountService {
         Relation relation = new Relation();
         Optional<Profile> optionalProfile1 = profileRepository.findByEmail(email);
         Optional<Profile> profile = profileRepository.findById(adminId);
+        if(profile.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Tenant Admin not found");
+        }
         if(optionalProfile1.isPresent() && profile.isPresent()) {
             relation.setUserId(optionalProfile1.get());
             relation.setAdminId(profile.get());
@@ -68,8 +70,9 @@ public class UserAccountService {
         }
         String token = tokenService.createToken(email);
         emailService.sendSignUpLink(email, token);
-        Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);
+        Optional<Tenant> optionalTenant = tenantRepository.findByTenantAdmin(profile.get());
         optionalTenant.ifPresent(userAccount::setTenant);
+        userAccount.setCreatedOn(LocalDateTime.now());
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "User created successfully");
     }
@@ -78,7 +81,6 @@ public class UserAccountService {
     public ResDTO<Object> updateUser(SignUpDTO signUpDTO , Integer adminId) {
         String name = signUpDTO.getName();
         String email = signUpDTO.getEmail();
-        String password =  passwordEncoder.encode(signUpDTO.getPassword());
         String contactNumber = signUpDTO.getContactNumber();
 
         Optional<Profile> optionalUserAccount = profileRepository.findByEmail(email);
@@ -88,12 +90,11 @@ public class UserAccountService {
         Profile userAccount = optionalUserAccount.get();
         userAccount.setName(name);
         userAccount.setEmail(email);
-        userAccount.setPassword(password);
         userAccount.setStatus("ACTIVE");
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setContactNumber(contactNumber);
-        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_USER.name());
+        Optional<Role> role = roleRepository.findByName(signUpDTO.getRole());
         role.ifPresent(userAccount::setRole);
-        userAccount.setAssignedRole(signUpDTO.getAssignedRole());
         profileRepository.save(userAccount);
         Relation relation = new Relation();
         Optional<Profile> optionalProfile = profileRepository.findByEmail(email);
@@ -132,6 +133,7 @@ public class UserAccountService {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");
         }
         Profile userAccount = optionalUserAccount.get();
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setStatus("INACTIVE");
         userAccount.setEnabled(false);
         profileRepository.save(userAccount);
@@ -148,6 +150,7 @@ public class UserAccountService {
         }
         Profile userAccount = optionalUserAccount.get();
         userAccount.setStatus("ACTIVE");
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setEnabled(true);
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "User Reactivated successfully");

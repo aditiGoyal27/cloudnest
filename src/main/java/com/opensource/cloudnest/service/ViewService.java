@@ -36,29 +36,30 @@ public class ViewService {
 
     public ResDTO<Object> viewProfile( Integer adminId , int page , int size) {
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
-        if(optionalProfile.isEmpty()) {
-         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No data found");
+        if (optionalProfile.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "No data found");
         }
+        List<Profile> userProfiles = profileRepository.findByAdmin(optionalProfile.get());
         List<Relation> relationList = relationRepository.findByAdminId(optionalProfile.get());
         List<ProfileInfoResponse> profileInfoResponses = new ArrayList<>();
 
         // Fetch profiles for each userId linked to the adminId
-        for (Relation relation : relationList) {
-            Optional<Profile> profileOptional = profileRepository.findById(relation.getUserId().getId());
-            profileOptional.ifPresent(profile -> {
-                ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(
-                        profile.getId(),
-                        profile.getName(),
-                        profile.getPassword(),
-                        profile.getEmail(),
-                        profile.getRole().getName().toString(),
-                        profile.getStatus(),
-                        profile.getTenant()!=null ? profile.getTenant().getId() : 0,
-                        profile.isEnabled()
-                );
-                profileInfoResponses.add(profileInfoResponse);
-            });
+        for (Profile profile : userProfiles) {
+            ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(
+                    profile.getId(),
+                    profile.getName(),
+                    profile.getEmail(),
+
+                    profile.getRole()!=null && profile.getRole().getName()!=null?profile.getRole().getName().toString():"",
+                    profile.getStatus(),
+                    profile.getTenant() != null ? profile.getTenant().getId() : 0,
+                    profile.getCreatedOn(),
+                    profile.getUpdatedOn(),
+                    profile.isEnabled()
+            );
+            profileInfoResponses.add(profileInfoResponse);
         }
+
 
         // Create a pageable instance
         Pageable pageable = PageRequest.of(page, size);
@@ -103,11 +104,12 @@ public class ViewService {
                 .map(profile -> new ProfileInfoResponse(
                         profile.getId(),
                         profile.getName(),
-                        profile.getPassword(),
                         profile.getEmail(),
                         profile.getRole().getName(),
                         profile.getStatus(),
                         profile.getTenant() != null ? profile.getTenant().getId() : 0,
+                        profile.getCreatedOn(),
+                        profile.getUpdatedOn(),
                         profile.isEnabled()
                 ))
                 .collect(Collectors.toList());

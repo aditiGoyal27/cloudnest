@@ -3,6 +3,8 @@ package com.opensource.cloudnest.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -34,6 +36,6 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "admin_id")
     private Profile admin;
-    private String assignedRole;
-
+    private LocalDateTime createdOn;
+    private LocalDateTime updatedOn;
 }

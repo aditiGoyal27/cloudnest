@@ -66,9 +66,8 @@ public class TenantService {
         optionalProfile.ifPresent(tenant::setTenantAdmin);
         tenant.setStatus(Tenant.Status.ACTIVE);
         tenantRepository.save(tenant);
-        Optional<Profile> optionalProfile1 = profileRepository.findByEmail(orgAdminEmail);
-        if(optionalProfile1.isPresent()){
-            Profile profile1 = optionalProfile1.get();
+        if(optionalProfile.isPresent()){
+            Profile profile1 = optionalProfile.get();
             Optional<Tenant> optionalTenant = tenantRepository.findByTenantName(tenantName);
             optionalTenant.ifPresent(profile1::setTenant);
             profileRepository.save(profile1);
@@ -105,6 +104,7 @@ public class TenantService {
         tenant.setCreatedAt(LocalDateTime.now());
         tenant.setTenantName(tenantName);
         optionalProfile.ifPresent(tenant::setTenantAdmin);
+        tenant.setUpdatedAt(LocalDateTime.now());
        // String token = tokenService.createToken(orgAdminEmail);
        // emailService.sendSignUpLink(orgAdminEmail, token);
         tenantRepository.save(tenant);
@@ -136,6 +136,7 @@ public class TenantService {
         }
         Tenant tenant = optionalOrganizationUnit.get();
         tenant.setStatus(Tenant.Status.SUSPENDED);
+        tenant.setUpdatedAt(LocalDateTime.now());
         tenantRepository.save(tenant);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "Tenant Data suspended successfully");
     }
@@ -148,6 +149,7 @@ public class TenantService {
         }
         Tenant tenant = optionalOrganizationUnit.get();
         tenant.setStatus(Tenant.Status.ACTIVE);
+        tenant.setUpdatedAt(LocalDateTime.now());
         tenantRepository.save(tenant);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "Tenant reactivated successfully");
     }
@@ -181,7 +183,6 @@ public class TenantService {
                 ProfileInfoResponse profileInfoResponse = ProfileInfoResponse.builder()
                         .id(profile.getId())
                         .name(profile.getName())
-                        .password(profile.getPassword()) // Ensure safe handling of passwords
                         .email(profile.getEmail())
                         .role(profile.getRole().getName().toString())
                         .status(profile.getStatus())
@@ -211,7 +212,6 @@ public class TenantService {
                     ProfileInfoResponse profileInfoResponse = ProfileInfoResponse.builder()
                             .id(profile.getId())
                             .name(profile.getName())
-                            .password(profile.getPassword()) // Ensure safe handling of passwords
                             .email(profile.getEmail())
                             .role(profile.getRole().getName().toString())
                             .status(profile.getStatus())

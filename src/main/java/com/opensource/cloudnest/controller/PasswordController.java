@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/auth")
@@ -78,6 +77,7 @@ public class PasswordController {
             }
             Profile profile = resetToken.get().getProfile();
             profile.setPassword(new BCryptPasswordEncoder().encode(newPasswordRequest.getNewPassword())); // Hash password
+            profile.setUpdatedOn(LocalDateTime.now());
             profileRepository.save(profile);
             tokenRepository.delete(resetToken.get()); // Remove used token
         } catch (Exception e) {

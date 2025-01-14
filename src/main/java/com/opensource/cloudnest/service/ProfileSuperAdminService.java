@@ -77,7 +77,8 @@ public class ProfileSuperAdminService {
         List<ProfileInfoResponse> profileInfoResponseList = new ArrayList<>();
         for(Profile profile : profileList) {
             ProfileInfoResponse profileInfoResponse = new ProfileInfoResponse(profile.getId() , profile.getName(),
-                    profile.getPassword() , profile.getEmail() , profile.getRole().getName(), profile.getStatus(),profile.getTenant()!=null ? profile.getTenant().getId() : 0,
+                      profile.getEmail() , profile.getRole().getName(), profile.getStatus(),profile.getTenant()!=null ? profile.getTenant().getId() : 0,
+                    profile.getCreatedOn(), profile.getUpdatedOn(),
                     profile.isEnabled());
             profileInfoResponseList.add(profileInfoResponse);
         }

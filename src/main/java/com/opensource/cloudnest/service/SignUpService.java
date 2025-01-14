@@ -45,6 +45,7 @@ public class SignUpService {
             Profile profile = optionalProfile.get();
             profile.setPassword(password);
             profile.setContactNumber(contactNumber);
+            profile.setUpdatedOn(LocalDateTime.now());
             profileRepository.save(profile);
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
         }
@@ -53,9 +54,13 @@ public class SignUpService {
         profile.setPassword(password);
         profile.setName(name);
         profile.setContactNumber(contactNumber);
+        profile.setCreatedOn(LocalDateTime.now());
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(profile::setRole);
-        SecureRandom random = new SecureRandom();
+        Optional<Profile> optionalProfile1 = profileRepository.findByRole(role.get());
+        if(optionalProfile1.isPresent()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Super admin already exists");
+        }
         profileRepository.save(profile);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
 
