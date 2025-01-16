@@ -76,12 +76,6 @@
     </changeSet>
     <changeSet id="4" author="aditi">
         <insert tableName="tbl_permission">
-            <column name="name" value="VIEW_USER"/>
-            <column name="category" value="User"/>
-            <column name="description" value="view User"/>
-            <column name="created_at" valueComputed="NOW()"/>
-        </insert>
-        <insert tableName="tbl_permission">
             <column name="name" value="CREATE_USER"/>
             <column name="category" value="User"/>
             <column name="description" value="create user"/>
@@ -100,20 +94,14 @@
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
         <insert tableName="tbl_permission">
-            <column name="name" value="VIEW_PERMISSION"/>
-            <column name="category" value="Permission"/>
-            <column name="description" value="view Permission Name"/>
-            <column name="created_at" valueComputed="NOW()"/>
-        </insert>
-        <insert tableName="tbl_permission">
-            <column name="name" value="ADD_PERMISSION"/>
+            <column name="name" value="CREATE_PERMISSION"/>
             <column name="category" value="Permission"/>
             <column name="description" value="add Permissions"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
 
         <insert tableName="tbl_permission">
-            <column name="name" value="GET_PERMISSION"/>
+            <column name="name" value="UPDATE_PERMISSION"/>
             <column name="category" value="Permission"/>
             <column name="description" value="Get Permission To Role"/>
             <column name="created_at" valueComputed="NOW()"/>
@@ -124,31 +112,84 @@
             <column name="description" value="Get Permission To Role"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
+
         <insert tableName="tbl_permission">
-            <column name="name" value="DELETE_ROLE"/>
-            <column name="category" value="Role"/>
-            <column name="description" value="Delete Role"/>
-            <column name="created_at" valueComputed="NOW()"/>
-        </insert>
-        <insert tableName="tbl_permission">
-            <column name="name" value="ADD_ROLE"/>
+            <column name="name" value="CREATE_ROLE"/>
             <column name="category" value="Role"/>
             <column name="description" value="Add Role"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
         <insert tableName="tbl_permission">
-            <column name="name" value="VIEW_ROLE"/>
+            <column name="name" value="UPDATE_ROLE"/>
             <column name="category" value="Role"/>
             <column name="description" value="view role"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
         <insert tableName="tbl_permission">
-            <column name="name" value="UPDATE_ROLE"/>
+            <column name="name" value="DELETE_ROLE"/>
             <column name="category" value="Role"/>
             <column name="description" value="update Role"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
-    </changeSet>
+
+
+        <insert tableName="tbl_permission">
+            <column name="name" value="CREATE_KNOWLEDGEVAULT"/>
+            <column name="category" value="Knowledgevault"/>
+            <column name="description" value="Add Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="UPDATE_KNOWLEDGEVAULT"/>
+            <column name="category" value="Knowledgevault"/>
+            <column name="description" value="view role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="DELETE_KNOWLEDGEVAULT"/>
+            <column name="category" value="Knowledgevault"/>
+            <column name="description" value="update Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+
+
+        <insert tableName="tbl_permission">
+            <column name="name" value="CREATE_FLOWCHAIN"/>
+            <column name="category" value="Flowchain"/>
+            <column name="description" value="Add Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="UPDATE_FLOWCHAIN"/>
+            <column name="category" value="Flowchain"/>
+            <column name="description" value="view role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="DELETE_FLOWCHAIN"/>
+            <column name="category" value="Flowchain"/>
+            <column name="description" value="update Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="CREATE_INTEGRATIONS"/>
+            <column name="category" value="Integrations"/>
+            <column name="description" value="Add Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="UPDATE_INTEGRATIONS"/>
+            <column name="category" value="Integrations"/>
+            <column name="description" value="view role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="name" value="DELETE_INTEGRATIONS"/>
+            <column name="category" value="Integrations"/>
+            <column name="description" value="update Role"/>
+            <column name="created_at" valueComputed="NOW()"/>
+        </insert>
+</changeSet>
 
     <changeSet id="5" author="aditi">
         <preConditions onFail="MARK_RAN">

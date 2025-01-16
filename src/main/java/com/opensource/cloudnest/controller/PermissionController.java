@@ -57,7 +57,7 @@ public class PermissionController {
 //        return new ResponseEntity<>(permissionService.addPermissionAlpha(permissionDTO), HttpStatus.OK);
 //    }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(authentication.principal.id, 'GET_PERMISSION')" )
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') or hasPermission(authentication.principal.id, 'GET_PERMISSION')" )
     @GetMapping("/getALLPermissionsToRole")
     public ResponseEntity<ResDTO<Object>> getPermissionToRole (HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
