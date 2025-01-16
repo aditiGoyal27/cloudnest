@@ -19,6 +19,7 @@ import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.UnknownServiceException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class TenantService {
     }
 
     @Transactional
-    public ResDTO<Object> deleteTenant(Long organizationId) {
+    public ResDTO<Object> softDeleteTenant(Long organizationId) {
         // Check if the tenant exists
         Optional<Tenant> optionalTenant = tenantRepository.findById(organizationId);
         if (optionalTenant.isEmpty()) {
@@ -347,5 +348,24 @@ public class TenantService {
             tenantResponses.add(tenantResponse);
         }
         return tenantResponses;
+    }
+
+    @Transactional
+    public ResDTO<Object> deleteTenant(Long organizationId) {
+        // Check if the tenant exists
+        Optional<Tenant> optionalTenant = tenantRepository.findById(organizationId);
+        if (optionalTenant.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Tenant not found");
+        }
+
+        Tenant tenant = optionalTenant.get();
+        List<Profile> users = tenant.getUsers();
+        for (Profile user : users) {
+
+            user.setEnabled(false);
+        }
+        tenantRepository.delete(tenant);
+        //tenant.setStatus(Tenant.Status.INACTIVE);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.DELETED_SUCCESSFULLY, "Tenant deleted successfully");
     }
 }

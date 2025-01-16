@@ -47,7 +47,7 @@ public class SignupController {
 
             // Return the redirection URL instead of redirecting
             String email = validToken.get().getEmail();
-            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Email verified successfully : " + email);
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "" + email);
         } else {
             // Token is invalid or expired
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Invalid or expired token");
