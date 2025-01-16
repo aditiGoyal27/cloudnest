@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class PermissionRequestDto {
-    private String permission;
+    private String name;
 
     List<HashMap<String, Object>> subMenu ;
 

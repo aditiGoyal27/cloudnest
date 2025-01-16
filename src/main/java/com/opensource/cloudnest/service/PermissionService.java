@@ -237,11 +237,18 @@ public class PermissionService {
 
 
         for (PermissionRequestDto permissionRequestDto : permissionRequestDtos) {
-            Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
+
+            String permissionName = permissionRequestDto.getName().toUpperCase();
+           // Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
             List<HashMap<String, Object>> lists = permissionRequestDto.getSubMenu();
 
             for (HashMap<String, Object> hashmap : lists) {
+
+                String name = hashmap.get("name").toString().toUpperCase() + "_" + permissionName;
                 for (String key : hashmap.keySet()) {
+
+                    Optional<Permission> permission = permissionRepository.findByName(name);
+
                     List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
 
                     if (hashmap.get(key).equals(true)) {
