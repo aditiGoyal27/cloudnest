@@ -2,6 +2,7 @@ package com.opensource.cloudnest.controller;
 
 import com.opensource.cloudnest.configuration.JwtTokenProvider;
 import com.opensource.cloudnest.dto.ResDTO;
+import com.opensource.cloudnest.dto.RoleDTO;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
 import com.opensource.cloudnest.repository.ProfileRepository;
 import com.opensource.cloudnest.service.RoleService;
@@ -11,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 @RequestMapping("/role")
 public class RoleController {
@@ -21,9 +22,9 @@ public class RoleController {
     ProfileRepository profileRepository;
     @PreAuthorize("hasAnyRole('SUPER_ADMIN' , 'ADMIN')")
     @PostMapping("/addRole")
-    public ResponseEntity<ResDTO<Object>> createRole(HttpServletRequest request  ,  @RequestParam  String roleName , @RequestParam String description) {
+    public ResponseEntity<ResDTO<Object>> createRole(HttpServletRequest request  , @RequestBody RoleDTO roleDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
-            return new ResponseEntity<>(roleService.createRole(roleName , description), HttpStatus.OK);
+            return new ResponseEntity<>(roleService.createRole(roleDTO), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND,"Role not added successfully"), HttpStatus.OK);
     }

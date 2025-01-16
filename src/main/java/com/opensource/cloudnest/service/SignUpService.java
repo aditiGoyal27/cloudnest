@@ -45,7 +45,7 @@ public class SignUpService {
             Profile profile = optionalProfile.get();
             profile.setPassword(password);
             profile.setContactNumber(contactNumber);
-            profile.setUpdatedOn(LocalDateTime.now());
+            profile.setUpdatedOn(System.currentTimeMillis());
             profileRepository.save(profile);
             return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "Signed up successfully");
         }
@@ -54,7 +54,8 @@ public class SignUpService {
         profile.setPassword(password);
         profile.setName(name);
         profile.setContactNumber(contactNumber);
-        profile.setCreatedOn(LocalDateTime.now());
+        profile.setStatus("ACTIVE");
+        profile.setCreatedOn(System.currentTimeMillis());
         Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_SUPER_ADMIN.name());
         role.ifPresent(profile::setRole);
         Optional<Profile> optionalProfile1 = profileRepository.findByRole(role.get());

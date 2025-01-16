@@ -13,8 +13,6 @@ public class JwtResponse {
     private Integer profileId;
     private Long roleId;
     private String roleName;
-    private long createdOn;
-    private long updatedOn;
     private List<PermissionResponse> permissionResponse;
     public JwtResponse(String token) {
         this.token = token;

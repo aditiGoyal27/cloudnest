@@ -1,6 +1,7 @@
 package com.opensource.cloudnest.repository;
 
 import com.opensource.cloudnest.entity.Profile;
+import com.opensource.cloudnest.entity.Role;
 import com.opensource.cloudnest.entity.Tenant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,4 +13,5 @@ Optional<Profile> findByEmail(String email);
 Optional<Profile> findByTenant(Tenant tenant);
 List<Profile> findByAdmin(Profile admin);
 Optional<Profile> findByRole(Role role);
+
 }

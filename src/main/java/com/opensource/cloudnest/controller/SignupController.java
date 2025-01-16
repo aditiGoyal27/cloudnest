@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 @RequestMapping("/signup")
 public class SignupController {
@@ -39,13 +39,7 @@ public class SignupController {
         if (validToken.isPresent()) {
             Optional<Profile> optionalProfile = profileRepository.findByEmail(validToken.get().getEmail());
             if (optionalProfile.isPresent()) {
-
                 Profile profile = optionalProfile.get();
-
-                if(profile.getStatus()!=null && profile.getStatus().equalsIgnoreCase("ACTIVE")){
-                    return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Email is already verified");
-
-                }
                 profile.setStatus("ACTIVE");
                 profile.setEnabled(true);
                 profileRepository.save(profile);
@@ -53,7 +47,7 @@ public class SignupController {
 
             // Return the redirection URL instead of redirecting
             String email = validToken.get().getEmail();
-            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "" + email);
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Email verified successfully : " + email);
         } else {
             // Token is invalid or expired
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Invalid or expired token");

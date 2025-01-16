@@ -36,6 +36,6 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "admin_id")
     private Profile admin;
-    private LocalDateTime createdOn;
-    private LocalDateTime updatedOn;
+    private long createdOn;
+    private long updatedOn;
 }

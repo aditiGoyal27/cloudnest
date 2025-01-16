@@ -13,4 +13,5 @@ Optional<Profile> findByEmail(String email);
 Optional<Profile> findByTenant(Tenant tenant);
 List<Profile> findByAdmin(Profile admin);
 Optional<Profile> findByRole(Role role);
+long countByRole(Role role);
 }

@@ -7,6 +7,6 @@ import java.time.LocalDateTime;
 @Builder
 public record ProfileInfoResponse(long id , String name ,
                                    String email  ,
-                                   String role , String status , long tenantId ,long createdOn ,long updatedOn,
+                                   String role , String status , long tenantId ,LocalDateTime createdOn ,LocalDateTime updatedOn,
                                   boolean enabled) {
 }

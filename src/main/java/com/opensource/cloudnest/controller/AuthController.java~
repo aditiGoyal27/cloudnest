@@ -58,8 +58,6 @@ public class AuthController {
         optionalProfile.ifPresent(profile -> jwtResponse.setEmail(profile.getEmail()));
         optionalProfile.ifPresent(profile -> jwtResponse.setStatus(profile.getStatus()));
         optionalProfile.ifPresent(profile -> jwtResponse.setStatus(profile.getStatus()));
-        optionalProfile.ifPresent(profile -> jwtResponse.setCreatedOn(profile.getCreatedOn()));
-        optionalProfile.ifPresent(profile -> jwtResponse.setUpdatedOn(profile.getUpdatedOn()));
         optionalProfile.ifPresent(profile -> jwtResponse.setRoleId(profile.getRole().getId()));
         optionalProfile.ifPresent(profile -> jwtResponse.setRoleName(profile.getRole().getName()));
         optionalProfile.ifPresent(profile -> jwtResponse.setPermissionResponse(permissionService.getAccessiblePermissionsByRole(profile.getRole().getName())));

@@ -1,7 +1,9 @@
 package com.opensource.cloudnest.service;
 
 import com.opensource.cloudnest.dto.PermissionDTO;
+import com.opensource.cloudnest.dto.PermissionRequestDto;
 import com.opensource.cloudnest.dto.ResDTO;
+import com.opensource.cloudnest.dto.response.ColumnResponseDto;
 import com.opensource.cloudnest.dto.response.PermissionResponse;
 import com.opensource.cloudnest.dto.response.PermissionWithRolesResponse;
 import com.opensource.cloudnest.dto.response.ResDTOMessage;
@@ -24,19 +26,23 @@ public class PermissionService {
     @Autowired
     private RoleRepository roleRepository;
 
+
+    @Autowired
+    private RoleService roleService;
+
     public ResDTO<Object> addPermissionName(String permissionName) {
-                Permission permission = new Permission();
-                permission.setName(permissionName);
-                permission.setDescription("");
-                permission.setCreatedAt(LocalDateTime.now());
-                permissionRepository.save(permission);
-        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS , "Permissions added Successfully");
+        Permission permission = new Permission();
+        permission.setName(permissionName);
+        permission.setDescription("");
+        permission.setCreatedAt(LocalDateTime.now());
+        permissionRepository.save(permission);
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Permissions added Successfully");
     }
 
 
     public ResDTO<Object> getPermissions() {
-       List<Permission> permissions = permissionRepository.findAll(); // Get all permissions>
-        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS ,permissions);
+        List<Permission> permissions = permissionRepository.findAll(); // Get all permissions>
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, permissions);
     }
 
     public ResDTO<Object> addPermission(PermissionDTO permissionDTO) {
@@ -92,7 +98,7 @@ public class PermissionService {
 
     public List<PermissionResponse> getAccessiblePermissionsByRole(String roleName) {
         Optional<Role> optionalRole = roleRepository.findByName(roleName);
-        if(optionalRole.isPresent()) {
+        if (optionalRole.isPresent()) {
             Set<Permission> permissions = optionalRole.get().getPermissions(); // Get the permissions associated with the role>
             return createPermissionResponse(permissions);
         }
@@ -112,38 +118,140 @@ public class PermissionService {
 
     public ResDTO<Object> getAllPermissionsWithRoles() {
         // Fetch all roles and permissions from the database
+
+        HashMap<String, Object> resultMap = new HashMap<>();
         List<Role> allRoles = roleRepository.findAll();
         List<Permission> allPermissions = permissionRepository.findAll();
 
-        // Create a list for the response
-        List<Map<String, Object>> permissionsResponse = new ArrayList<>();
+        // Define categories
+        List<String> categories = Arrays.asList("User", "Role", "Permission", "Knowledgevault", "Flowchain", "Integrations");
 
-        // Iterate over all permissions
-        for (Permission permission : allPermissions) {
-            // Find roles associated with this permission
-            List<Map<String, Object>> associatedRoles = allRoles.stream()
-                    .filter(role -> role.getPermissions().contains(permission)) // Check if the role has this permission
-                    .map(role -> {
-                        Map<String, Object> roleData = new HashMap<>();
-                        roleData.put("id", role.getId());
-                        roleData.put("name", role.getName());
-                        return roleData;
+        // Initialize the response structure
+        List<Map<String, Object>> groupedPermissions = new ArrayList<>();
+
+        // Iterate through categories and group permissions
+        for (String category : categories) {
+            // Filter permissions belonging to the current category
+            List<Map<String, Object>> permissionsForCategory = allPermissions.stream()
+                    .filter(permission -> permission.getName().toUpperCase().contains(category.toUpperCase())) // Match category in the permission name
+                    .map(permission -> {
+                        // Find roles associated with this permission
+                        List<Map<String, Object>> associatedRoles = allRoles.stream()
+                                .filter(role -> role.getPermissions().contains(permission)) // Check if the role has this permission
+                                .map(role -> {
+                                    Map<String, Object> roleData = new HashMap<>();
+                                    roleData.put("id", role.getId());
+                                    roleData.put("name", role.getName());
+                                    return roleData;
+                                })
+                                .collect(Collectors.toList());
+
+                        // Build the permission structure
+                        Map<String, Object> permissionData = new HashMap<>();
+                        permissionData.put("PermissionName", permission.getName());
+                        permissionData.put("roles", associatedRoles);
+                        permissionData.put("PermissionId", permission.getId());
+                        return permissionData;
                     })
                     .collect(Collectors.toList());
 
-            // Build the permission response with associated roles
-            Map<String, Object> permissionData = new HashMap<>();
-            permissionData.put("PermissionId", permission.getId());
-            permissionData.put("PermissionName", permission.getName());
-            permissionData.put("roles", associatedRoles);
-
-            permissionsResponse.add(permissionData);
+            // Add the category and its permissions to the response
+            Map<String, Object> categoryData = new HashMap<>();
+            categoryData.put(category, permissionsForCategory);
+            groupedPermissions.add(categoryData);
         }
 
-        // Create the final JSON structure
-        Map<String, Object> response = new HashMap<>();
-        response.put("permissions", permissionsResponse);
+        // Create the final response payload
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, groupedPermissions);
+    }
 
-        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, response);
+
+    public ResDTO<Object> getAllPermissionsWithRolesAlpha() {
+        // Fetch all roles and permissions from the database
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        List<String> categories = Arrays.asList("User", "Role", "Permission", "Knowledgevault", "Flowchain", "Integrations");
+
+        List<Role> roles = roleRepository.findAll();
+
+        List<HashMap<String, List<HashMap<String, Object>>>> rowItem = new ArrayList<>();
+
+
+
+        for (String category : categories) {
+
+            List<HashMap<String, Object>> permissionItems = new ArrayList<>();
+
+            List<Permission> categoryPermissions = permissionRepository.findByCategory(category);
+
+
+            for (Permission permission : categoryPermissions) {
+                HashMap<String, Object> PermaisshashMap = new HashMap<>();
+
+
+                for (Role role : roles) {
+                    PermaisshashMap.put(role.getName(), role.getPermissions().contains(permission));
+                }
+                PermaisshashMap.put("name",permission.getName());
+                HashMap<String, Object> somehashMap = new HashMap<>();
+
+
+                somehashMap.put(permission.getName(), PermaisshashMap);
+
+                permissionItems.add(somehashMap);
+
+
+            }
+            HashMap<String, List<HashMap<String, Object>>> hsh = new HashMap<>();
+            hsh.put(category, permissionItems);
+            rowItem.add(hsh);
+
+        }
+
+
+        List<ColumnResponseDto> columnResponseDtos = new ArrayList<>();
+        ColumnResponseDto columnResponseDto = new ColumnResponseDto();
+        columnResponseDto.setAccessor("name");
+        columnResponseDto.setLabel("Name");
+        columnResponseDtos.add(columnResponseDto);
+        for (Role role : roles) {
+            columnResponseDto = new ColumnResponseDto();
+            columnResponseDto.setAccessor(role.getName());
+            columnResponseDto.setLabel(role.getName());
+            columnResponseDtos.add(columnResponseDto);
+        }
+
+        //return
+        resultMap.put("columns", columnResponseDtos);
+        resultMap.put("rows",rowItem);
+
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, resultMap);
+
+    }
+
+
+
+    public ResDTO<Object> addPermissionAlpha(List<PermissionRequestDto> permissionRequestDtos) {
+
+
+        for (PermissionRequestDto permissionRequestDto : permissionRequestDtos) {
+            Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
+            List<HashMap<String, Boolean>> lists = permissionRequestDto.getHashMaps();
+
+            for (HashMap<String, Boolean> hashmap : lists) {
+                for (String key : hashmap.keySet()) {
+                    List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
+
+                    if (hashmap.get(key)) {
+                        roleService.addPermissionToRole(role.get(0), permission.get());
+                    } else {
+                        roleService.deletePermissionToRole(role.get(0), permission.get());
+
+                    }
+                }
+            }
+        }
+
+        return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Permissions added/updated successfully");
     }
 }

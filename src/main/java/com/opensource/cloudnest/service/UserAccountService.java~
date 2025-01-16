@@ -90,7 +90,7 @@ public class UserAccountService {
         userAccount.setName(name);
         userAccount.setEmail(email);
         userAccount.setStatus("ACTIVE");
-        userAccount.setUpdatedOn(System.currentTimeMillis());
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setContactNumber(contactNumber);
         Optional<Role> role = roleRepository.findByName(signUpDTO.getRole());
         role.ifPresent(userAccount::setRole);
@@ -132,7 +132,7 @@ public class UserAccountService {
             return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Record Does Not exists");
         }
         Profile userAccount = optionalUserAccount.get();
-        userAccount.setUpdatedOn(System.currentTimeMillis());
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setStatus("INACTIVE");
         userAccount.setEnabled(false);
         profileRepository.save(userAccount);
@@ -149,7 +149,7 @@ public class UserAccountService {
         }
         Profile userAccount = optionalUserAccount.get();
         userAccount.setStatus("ACTIVE");
-        userAccount.setUpdatedOn(System.currentTimeMillis());
+        userAccount.setUpdatedOn(LocalDateTime.now());
         userAccount.setEnabled(true);
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.UPDATED_SUCCESSFULLY, "User Reactivated successfully");

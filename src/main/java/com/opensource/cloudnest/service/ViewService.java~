@@ -103,6 +103,7 @@ public class ViewService {
                 .map(profile -> new ProfileInfoResponse(
                         profile.getId(),
                         profile.getName(),
+                        profile.getPassword(),
                         profile.getEmail(),
                         profile.getRole().getName(),
                         profile.getStatus(),
