@@ -174,7 +174,7 @@ public class PermissionService {
 
         List<Role> roles = roleRepository.findAll();
 
-        List<HashMap<String, List<HashMap<String, Object>>>> rowItem = new ArrayList<>();
+        List<HashMap<String, Object>> rowItem = new ArrayList<>();
 
 
 
@@ -186,24 +186,26 @@ public class PermissionService {
 
 
             for (Permission permission : categoryPermissions) {
+
                 HashMap<String, Object> PermaisshashMap = new HashMap<>();
 
-
                 for (Role role : roles) {
-                    PermaisshashMap.put(role.getName(), role.getPermissions().contains(permission));
+                    PermaisshashMap.put(role.getName().toLowerCase(), role.getPermissions().contains(permission));
                 }
-                PermaisshashMap.put("name",permission.getName());
+
+                PermaisshashMap.put("name",permission.getName().split("_")[0].toLowerCase());
                 HashMap<String, Object> somehashMap = new HashMap<>();
 
 
                 somehashMap.put(permission.getName(), PermaisshashMap);
 
-                permissionItems.add(somehashMap);
+                permissionItems.add(PermaisshashMap);
 
 
             }
-            HashMap<String, List<HashMap<String, Object>>> hsh = new HashMap<>();
-            hsh.put(category, permissionItems);
+            HashMap<String, Object> hsh = new HashMap<>();
+            hsh.put("name", category);
+            hsh.put("subMenu", permissionItems);
             rowItem.add(hsh);
 
         }
@@ -216,8 +218,8 @@ public class PermissionService {
         columnResponseDtos.add(columnResponseDto);
         for (Role role : roles) {
             columnResponseDto = new ColumnResponseDto();
-            columnResponseDto.setAccessor(role.getName());
-            columnResponseDto.setLabel(role.getName());
+            columnResponseDto.setAccessor(role.getName().toLowerCase());
+            columnResponseDto.setLabel(role.getName().replace("_"," "));
             columnResponseDtos.add(columnResponseDto);
         }
 
@@ -236,15 +238,16 @@ public class PermissionService {
 
         for (PermissionRequestDto permissionRequestDto : permissionRequestDtos) {
             Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
-            List<HashMap<String, Boolean>> lists = permissionRequestDto.getHashMaps();
+            List<HashMap<String, Object>> lists = permissionRequestDto.getSubMenu();
 
-            for (HashMap<String, Boolean> hashmap : lists) {
+            for (HashMap<String, Object> hashmap : lists) {
                 for (String key : hashmap.keySet()) {
                     List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
 
-                    if (hashmap.get(key)) {
+                    if (hashmap.get(key).equals(true)) {
                         roleService.addPermissionToRole(role.get(0), permission.get());
-                    } else {
+                    }
+                    else if(hashmap.get(key).equals(false)) {
                         roleService.deletePermissionToRole(role.get(0), permission.get());
 
                     }

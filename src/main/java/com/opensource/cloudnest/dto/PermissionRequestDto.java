@@ -9,6 +9,6 @@ import java.util.List;
 public class PermissionRequestDto {
     private String permission;
 
-    List<HashMap<String, Boolean>> hashMaps ;
+    List<HashMap<String, Object>> subMenu ;
 
 }
