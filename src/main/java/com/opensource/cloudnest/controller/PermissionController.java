@@ -77,7 +77,7 @@ public class PermissionController {
 
 
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN' ,'ADMIN') and hasPermission(authentication.principal.id, 'ADD_PERMISSION')" )
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN' ,'ADMIN') or hasPermission(authentication.principal.id, 'ADD_PERMISSION')" )
     @PostMapping("/add")
     public ResponseEntity<ResDTO<Object>> addPermissionToRole(@RequestBody List<PermissionRequestDto> permissionRequestDtos , HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request, profileRepository)) {

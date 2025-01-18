@@ -250,8 +250,10 @@ public class PermissionService {
                     Optional<Permission> permission = permissionRepository.findByName(name);
 
                     List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
+                    if(permission !=null && !permission.isEmpty() && role.size()!=0)
 
                     if (hashmap.get(key).equals(true)) {
+
                         roleService.addPermissionToRole(role.get(0), permission.get());
                     }
                     else if(hashmap.get(key).equals(false)) {
