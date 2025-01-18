@@ -177,7 +177,6 @@ public class PermissionService {
         List<HashMap<String, Object>> rowItem = new ArrayList<>();
 
 
-
         for (String category : categories) {
 
             List<HashMap<String, Object>> permissionItems = new ArrayList<>();
@@ -193,7 +192,7 @@ public class PermissionService {
                     PermaisshashMap.put(role.getName().toLowerCase(), role.getPermissions().contains(permission));
                 }
 
-                PermaisshashMap.put("name",permission.getName().split("_")[0].toLowerCase());
+                PermaisshashMap.put("name", permission.getName().split("_")[0].toLowerCase());
                 HashMap<String, Object> somehashMap = new HashMap<>();
 
 
@@ -219,18 +218,17 @@ public class PermissionService {
         for (Role role : roles) {
             columnResponseDto = new ColumnResponseDto();
             columnResponseDto.setAccessor(role.getName().toLowerCase());
-            columnResponseDto.setLabel(role.getName().replace("_"," "));
+            columnResponseDto.setLabel(role.getName().replace("_", " "));
             columnResponseDtos.add(columnResponseDto);
         }
 
         //return
         resultMap.put("columns", columnResponseDtos);
-        resultMap.put("rows",rowItem);
+        resultMap.put("rows", rowItem);
 
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, resultMap);
 
     }
-
 
 
     public ResDTO<Object> addPermissionAlpha(List<PermissionRequestDto> permissionRequestDtos) {
@@ -239,7 +237,7 @@ public class PermissionService {
         for (PermissionRequestDto permissionRequestDto : permissionRequestDtos) {
 
             String permissionName = permissionRequestDto.getName().toUpperCase();
-           // Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
+            // Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
             List<HashMap<String, Object>> lists = permissionRequestDto.getSubMenu();
 
             for (HashMap<String, Object> hashmap : lists) {
@@ -250,15 +248,15 @@ public class PermissionService {
                     Optional<Permission> permission = permissionRepository.findByName(name);
 
                     List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
-                    if(permission !=null && !permission.isEmpty() && role.size()!=0)
+                    if (permission != null && !permission.isEmpty() && role.size() != 0) {
 
-                    if (hashmap.get(key).equals(true)) {
+                        if (hashmap.get(key).equals(true)) {
 
-                        roleService.addPermissionToRole(role.get(0), permission.get());
-                    }
-                    else if(hashmap.get(key).equals(false)) {
-                        roleService.deletePermissionToRole(role.get(0), permission.get());
+                            roleService.addPermissionToRole(role.get(0), permission.get());
+                        } else if (hashmap.get(key).equals(false)) {
+                            roleService.deletePermissionToRole(role.get(0), permission.get());
 
+                        }
                     }
                 }
             }
