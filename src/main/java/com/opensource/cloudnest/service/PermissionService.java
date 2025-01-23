@@ -106,9 +106,9 @@ public class PermissionService {
         return null;
     }
 
-    public
-    Map <String, List<String>> getMenuResponse(String roleName) {
+    public List<MenuObjectResponse> getMenuResponse(String roleName) {
         Optional<Role> optionalRole = roleRepository.findByName(roleName);
+        List<MenuObjectResponse> resultList = new ArrayList<>();
 
         Map<String , List<String>> menuListResponseResult = new HashMap<>();
         Set<String> category = new HashSet<>();
@@ -126,6 +126,19 @@ public class PermissionService {
                 }
                 menuListResponseResult.put(key,permissionResult);
             }
+            for(String key: menuListResponseResult.keySet()){
+                MenuObjectResponse menuObjectResponse = new MenuObjectResponse();
+                menuObjectResponse.setMenu(key);
+                List<String> permissionList = menuListResponseResult.get(key);
+                for(String name : permissionList){
+                    if(name.contains("CREATE")){
+                        menuObjectResponse.setCrud(true);
+                        break;
+                    }
+                }
+                resultList.add(menuObjectResponse);
+                permissionList.clear();
+            }
 
 
             // Get the permissions associated with the role>
@@ -138,7 +151,7 @@ public class PermissionService {
 //                }
 //            }
         }
-        return menuListResponseResult;
+        return resultList;
     }
 
     private List<PermissionResponse> createPermissionResponse(Set<Permission> permissions) {

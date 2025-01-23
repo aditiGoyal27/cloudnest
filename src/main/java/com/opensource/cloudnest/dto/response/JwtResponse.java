@@ -18,7 +18,7 @@ public class JwtResponse {
     private String roleName;
     private long createdOn;
     private long updatedOn;
-    private Map<String,List<String>> menuResponse;
+    private List<MenuObjectResponse> menuResponse;
     public JwtResponse(String token) {
         this.token = token;
     }
