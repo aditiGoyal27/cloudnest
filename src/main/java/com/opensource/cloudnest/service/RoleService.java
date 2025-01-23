@@ -36,8 +36,14 @@ public class RoleService {
         String description = roleDTO.getDescription();
         role.setDescription(description);
         role.setCreatedAt(LocalDateTime.now());
-        roleRepository.save(role);
-        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS,"Roles added successfully");
+        try {
+            // Save the new role
+            roleRepository.save(role);
+            return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Role added successfully");
+        } catch (Exception e) {
+            // Handle unexpected errors during save operation
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Error occurred while adding role");
+        }
     }
 
     public ResDTO<Object> getRoles() {
@@ -78,6 +84,14 @@ public class RoleService {
             roleRepository.save(role1);
         }
         return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS,"Roles added successfully");
+
+    }
+
+    public ResDTO<Object> deleteRole(Long roleId){
+        Optional<Role> roleInDatabase = roleRepository.findById(roleId);
+        Role role = roleInDatabase.get();
+        roleRepository.delete(role);
+        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS,"Roles deleted successfully");
 
     }
 }

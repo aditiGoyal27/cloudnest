@@ -2,7 +2,10 @@ package com.opensource.cloudnest.dto.response;
 
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Data
 public class JwtResponse {
@@ -15,7 +18,7 @@ public class JwtResponse {
     private String roleName;
     private long createdOn;
     private long updatedOn;
-    private List<PermissionResponse> permissionResponse;
+    private Map<String,List<String>> menuResponse;
     public JwtResponse(String token) {
         this.token = token;
     }

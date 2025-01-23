@@ -30,16 +30,16 @@ public class PermissionController {
     private ProfileAdminService profileAdminService;
     @Autowired
     ProfileRepository profileRepository;
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(authentication.principal.id, 'ADD_PERMISSION_NAME')" )
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'CREATE_PERMISSION')" )
     @PostMapping("/addPermissionName")
-    public ResponseEntity<ResDTO<Object>> addPermissionName(@RequestParam String name , HttpServletRequest request) {
+    public ResponseEntity<ResDTO<Object>> addPermissionName(@RequestParam String name , @RequestParam String category , @RequestParam String description , HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request, profileRepository)) {
             return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "Sorry token invalid"), HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(permissionService.addPermissionName(name), HttpStatus.OK);
+        return new ResponseEntity<>(permissionService.addPermissionName(name , category , description), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') and hasPermission(authentication.principal.id, 'GET_PERMISSION_NAME')" )
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/getPermissionName")
     public ResponseEntity<ResDTO<Object>> getPermissions(  HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -57,7 +57,7 @@ public class PermissionController {
 //        return new ResponseEntity<>(permissionService.addPermissionAlpha(permissionDTO), HttpStatus.OK);
 //    }
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN') or hasPermission(authentication.principal.id, 'GET_PERMISSION')" )
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'VIEW_PERMISSION')" )
     @GetMapping("/getALLPermissionsToRole")
     public ResponseEntity<ResDTO<Object>> getPermissionToRole (HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -77,7 +77,7 @@ public class PermissionController {
 
 
 
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN' ,'ADMIN') or hasPermission(authentication.principal.id, 'ADD_PERMISSION')" )
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'UPDATE_PERMISSION')" )
     @PostMapping("/add")
     public ResponseEntity<ResDTO<Object>> addPermissionToRole(@RequestBody List<PermissionRequestDto> permissionRequestDtos , HttpServletRequest request) {
         if (!JwtTokenProvider.validateProfileIdInAccessToken(request, profileRepository)) {

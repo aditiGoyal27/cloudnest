@@ -21,7 +21,7 @@ public class ViewController {
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     ProfileRepository profileRepository;
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(#adminId, 'VIEW_PROFILE')")
+    @PreAuthorize("hasRole('ROLE_TENANT_ADMIN') OR hasPermission(authentication.principal.id, 'VIEW_USER')")
     @GetMapping("/profile")
     public ResDTO<Object> viewProfile(HttpServletRequest request ,@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "10") int size

@@ -31,7 +31,7 @@ public class ProfileSuperAdminController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND, "user data not found");
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'UPDATE_PROFILE')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/updateProfileDetails/{profileId}")
     public ResDTO<Object> updateProfileDetails(HttpServletRequest request,@PathVariable Integer profileId ,@RequestBody SignUpDTO signUpDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {

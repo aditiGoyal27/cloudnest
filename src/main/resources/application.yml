@@ -7,14 +7,14 @@ spring:
   data:
     web:
       projections:
-        enabled=false:
+        enabled: false
   datasource:
     url: jdbc:postgresql://localhost:5432/db_wavematrix_cloudnest
   jpa:
     hibernate:
-      ddl-auto: update  # This is correct, will not automatically update the schema
-      # dialect: org.hibernate.dialect.PostgreSQLDialect  # Uncomment if needed
-    show-sql: true  # Optional: logs SQL statements
+      ddl-auto: update  # Hibernate's schema update behavior
+      # dialect: org.hibernate.dialect.PostgreSQLDialect  # Uncomment if explicitly needed
+    show-sql: true  # Logs SQL statements
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml

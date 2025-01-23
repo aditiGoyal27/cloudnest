@@ -24,7 +24,7 @@ public class TenantController {
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     ProfileRepository profileRepository;
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'CREATE_TENANT')")
     @PostMapping("/create")
     public ResDTO<Object> createTenant(HttpServletRequest request  , @RequestBody TenantDTO tenantDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -53,7 +53,7 @@ public class TenantController {
         return new ResDTO<>(Boolean.FALSE ,ResDTOMessage.FAILURE, "Invalid Data");
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'DELETE_TENANT')")
     @DeleteMapping("/delete")
     public ResDTO<Object> deleteTenant(@RequestParam Long tenantId , HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request, profileRepository)) {
@@ -113,7 +113,7 @@ public class TenantController {
 
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')" )
     @GetMapping("/getFilterTenants")
     public ResDTO<Object> getFilterTenants(HttpServletRequest request ,@RequestParam String orgName , @RequestParam String orgAdminName) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request,    profileRepository)) {

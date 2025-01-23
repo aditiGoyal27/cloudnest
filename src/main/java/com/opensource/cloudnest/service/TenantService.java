@@ -54,7 +54,7 @@ public class TenantService {
         Profile profile = new Profile();
         profile.setName(orgAdminName);
         profile.setEmail(orgAdminEmail);
-        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_TENANT_ADMIN.name());
         role.ifPresent(profile::setRole);
         Optional<Profile> optionalProfileSuperAdmin = profileRepository.findById(adminId);
         optionalProfileSuperAdmin.ifPresent(profile::setSuperAdmin);
@@ -92,7 +92,7 @@ public class TenantService {
         Profile profile = optionalProfile.get();
         profile.setName(orgAdminName);
         profile.setEmail(orgAdminEmail);
-        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
+        Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_TENANT_ADMIN.name());
         role.ifPresent(profile::setRole);
         profileRepository.save(profile);
         Optional<Tenant> optionalTenant = tenantRepository.findById(tenantId);

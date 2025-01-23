@@ -25,7 +25,7 @@ public class UserAccountController {
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     ProfileRepository profileRepository;
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(authentication.principal.id, 'CREATE_USER')")
+    @PreAuthorize("hasRole('ROLE_TENANT_ADMIN') OR hasPermission(authentication.principal.id, 'CREATE_USER')")
     @PostMapping("/create")
     public ResDTO<Object> createUser(HttpServletRequest request , @RequestBody  SignUpDTO signUpDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -34,7 +34,7 @@ public class UserAccountController {
         return new  ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE ,"Invalid Data");
     }
 
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(authentication.principal.id, 'UPDATE_USER')")
+    @PreAuthorize("hasRole('ROLE_TENANT_ADMIN') OR hasPermission(authentication.principal.id, 'UPDATE_USER')")
     @PostMapping("/update")
     public ResDTO<Object> updateUser(HttpServletRequest request ,@RequestBody  SignUpDTO signUpDTO) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -43,7 +43,7 @@ public class UserAccountController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE ,"Invalid data");
     }
 
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(authentication.principal.id, 'DELETE_USER')")
+    @PreAuthorize("hasRole('ROLE_TENANT_ADMIN') OR hasPermission(authentication.principal.id, 'DELETE_USER')")
     @DeleteMapping("/delete")
     public ResDTO<Object> deleteUser(HttpServletRequest request , @RequestParam Integer userId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -52,7 +52,7 @@ public class UserAccountController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Invalid Data" );
     }
 
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(authentication.principal.id, 'SUSPEND_USER')")
+
     @PostMapping("/suspend")
     public ResDTO<Object> suspendUser(HttpServletRequest request,  @RequestParam Integer userId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
@@ -61,7 +61,7 @@ public class UserAccountController {
         return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Invalid Data" );
     }
 
-    @PreAuthorize("hasRole('ADMIN') OR hasPermission(authentication.principal.id, 'REACTIVATE_USER')")
+
     @PostMapping("/reactivate")
     public ResDTO<Object> reactivateUser(HttpServletRequest request,@RequestParam Integer userId) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {

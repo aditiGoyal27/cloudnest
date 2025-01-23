@@ -27,15 +27,17 @@ public class SecurityConfig  {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomFilterExceptionHandler customFilterExceptionHandler;
 
 
     @Bean
     public CustomPermissionEvaluator customPermissionEvaluator() {
         return new CustomPermissionEvaluator();
     }
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, CustomFilterExceptionHandler customFilterExceptionHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customFilterExceptionHandler = customFilterExceptionHandler;
     }
 
     @Bean
@@ -53,7 +55,7 @@ public class SecurityConfig  {
                         .requestMatchers("/profile/superAdmin/**").permitAll()
                         .requestMatchers("/profile/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/verify/**").permitAll()
-                        .requestMatchers("/tenant/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers("/tenant/**").hasAnyRole("SUPER_ADMIN", "TENANT_ADMIN")
                         .requestMatchers("/permission/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
@@ -64,6 +66,8 @@ public class SecurityConfig  {
 
         // Add the JWT filter before the UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterAfter(customFilterExceptionHandler, JwtAuthenticationFilter.class);
 
         return http.build();
     }

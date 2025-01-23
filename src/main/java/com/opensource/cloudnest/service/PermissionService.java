@@ -3,10 +3,7 @@ package com.opensource.cloudnest.service;
 import com.opensource.cloudnest.dto.PermissionDTO;
 import com.opensource.cloudnest.dto.PermissionRequestDto;
 import com.opensource.cloudnest.dto.ResDTO;
-import com.opensource.cloudnest.dto.response.ColumnResponseDto;
-import com.opensource.cloudnest.dto.response.PermissionResponse;
-import com.opensource.cloudnest.dto.response.PermissionWithRolesResponse;
-import com.opensource.cloudnest.dto.response.ResDTOMessage;
+import com.opensource.cloudnest.dto.response.*;
 import com.opensource.cloudnest.entity.Permission;
 import com.opensource.cloudnest.entity.Role;
 import com.opensource.cloudnest.repository.PermissionRepository;
@@ -17,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 public class PermissionService {
@@ -30,10 +29,11 @@ public class PermissionService {
     @Autowired
     private RoleService roleService;
 
-    public ResDTO<Object> addPermissionName(String permissionName) {
+    public ResDTO<Object> addPermissionName(String permissionName , String category , String description) {
         Permission permission = new Permission();
         permission.setName(permissionName);
-        permission.setDescription("");
+        permission.setCategory(category);
+        permission.setDescription(description);
         permission.setCreatedAt(LocalDateTime.now());
         permissionRepository.save(permission);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, "Permissions added Successfully");
@@ -68,6 +68,7 @@ public class PermissionService {
                     if (permissionOpt.isPresent()) {
                         Permission permission = permissionOpt.get();
                         role.getPermissions().add(permission); // Assign the permission
+
                     } else {
                         throw new RuntimeException("Permission with ID " + permissionId + " not found");
                     }
@@ -103,6 +104,41 @@ public class PermissionService {
             return createPermissionResponse(permissions);
         }
         return null;
+    }
+
+    public
+    Map <String, List<String>> getMenuResponse(String roleName) {
+        Optional<Role> optionalRole = roleRepository.findByName(roleName);
+
+        Map<String , List<String>> menuListResponseResult = new HashMap<>();
+        Set<String> category = new HashSet<>();
+         if (optionalRole.isPresent()) {
+            Set<Permission> permissions = optionalRole.get().getPermissions();
+             Map<String , List<Permission>> menuListResponse =permissions.stream().collect(groupingBy(Permission::getCategory));
+
+                    //posts.stream()
+            for(String key :menuListResponse.keySet()){
+
+                List<String> permissionResult = new ArrayList<>();
+                for(Permission p :  menuListResponse.get(key)){
+                    permissionResult.add(p.getName());
+
+                }
+                menuListResponseResult.put(key,permissionResult);
+            }
+
+
+            // Get the permissions associated with the role>
+//            for(Permission permission :permissions) {
+//
+//                if(permission.getName().contains("VIEW")) {
+//                    menuListResponse.add(permission.getCategory(),)
+//
+//                    category.add(permission.getCategory());
+//                }
+//            }
+        }
+        return menuListResponseResult;
     }
 
     private List<PermissionResponse> createPermissionResponse(Set<Permission> permissions) {
@@ -177,6 +213,7 @@ public class PermissionService {
         List<HashMap<String, Object>> rowItem = new ArrayList<>();
 
 
+
         for (String category : categories) {
 
             List<HashMap<String, Object>> permissionItems = new ArrayList<>();
@@ -192,7 +229,7 @@ public class PermissionService {
                     PermaisshashMap.put(role.getName().toLowerCase(), role.getPermissions().contains(permission));
                 }
 
-                PermaisshashMap.put("name", permission.getName().split("_")[0].toLowerCase());
+                PermaisshashMap.put("name",permission.getName().split("_")[0].toLowerCase());
                 HashMap<String, Object> somehashMap = new HashMap<>();
 
 
@@ -218,18 +255,17 @@ public class PermissionService {
         for (Role role : roles) {
             columnResponseDto = new ColumnResponseDto();
             columnResponseDto.setAccessor(role.getName().toLowerCase());
-            columnResponseDto.setLabel(role.getName().replace("_", " "));
+            columnResponseDto.setLabel(role.getName().replace("_"," "));
             columnResponseDtos.add(columnResponseDto);
         }
 
         //return
         resultMap.put("columns", columnResponseDtos);
-        resultMap.put("rows", rowItem);
+        resultMap.put("rows",rowItem);
 
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, resultMap);
 
     }
-
 
     public ResDTO<Object> addPermissionAlpha(List<PermissionRequestDto> permissionRequestDtos) {
 
@@ -237,7 +273,7 @@ public class PermissionService {
         for (PermissionRequestDto permissionRequestDto : permissionRequestDtos) {
 
             String permissionName = permissionRequestDto.getName().toUpperCase();
-            // Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
+           // Optional<Permission> permission = permissionRepository.findByName(permissionRequestDto.getPermission());
             List<HashMap<String, Object>> lists = permissionRequestDto.getSubMenu();
 
             for (HashMap<String, Object> hashmap : lists) {
@@ -248,15 +284,13 @@ public class PermissionService {
                     Optional<Permission> permission = permissionRepository.findByName(name);
 
                     List<Role> role = roleRepository.findByNameContainingIgnoreCase(key);
-                    if (permission != null && !permission.isEmpty() && role.size() != 0) {
 
-                        if (hashmap.get(key).equals(true)) {
+                    if (hashmap.get(key).equals(true)) {
+                        roleService.addPermissionToRole(role.get(0), permission.get());
+                    }
+                    else if(hashmap.get(key).equals(false)) {
+                        roleService.deletePermissionToRole(role.get(0), permission.get());
 
-                            roleService.addPermissionToRole(role.get(0), permission.get());
-                        } else if (hashmap.get(key).equals(false)) {
-                            roleService.deletePermissionToRole(role.get(0), permission.get());
-
-                        }
                     }
                 }
             }

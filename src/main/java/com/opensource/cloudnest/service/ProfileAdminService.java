@@ -55,7 +55,7 @@ public class ProfileAdminService {
             profile.setStatus("ACTIVE");
 
             // Set role
-            Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
+            Optional<Role> role = roleRepository.findByName(RoleEnum.ROLE_TENANT_ADMIN.name());
             if (role.isPresent()) {
                 profile.setRole(role.get());
             } else {

@@ -26,7 +26,7 @@ public class ProfileAdminController {
     private ProfileRepository profileRepository;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(#superAdminId, 'CREATE_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') ")
     @PostMapping("/create/{tenantId}")
     public ResDTO<Object> createAdmin(@RequestBody SignUpDTO signUpDTO , @PathVariable Long tenantId , HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request ,profileRepository)) {

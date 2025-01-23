@@ -63,7 +63,7 @@ public class AuthController {
         optionalProfile.ifPresent(profile -> jwtResponse.setUpdatedOn(profile.getUpdatedOn()));
         optionalProfile.ifPresent(profile -> jwtResponse.setRoleId(profile.getRole().getId()));
         optionalProfile.ifPresent(profile -> jwtResponse.setRoleName(profile.getRole().getName()));
-        optionalProfile.ifPresent(profile -> jwtResponse.setPermissionResponse(permissionService.getAccessiblePermissionsByRole(profile.getRole().getName())));
+        optionalProfile.ifPresent(profile -> jwtResponse.setMenuResponse(permissionService.getMenuResponse(profile.getRole().getName())));
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, jwtResponse);
 
     }
