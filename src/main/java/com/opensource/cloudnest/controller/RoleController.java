@@ -30,7 +30,7 @@ public class RoleController {
         return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND,"Role not added successfully"), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'VIEW_ROLE')")
+    //@PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(authentication.principal.id, 'VIEW_ROLE')")
     @GetMapping("/getRoles")
     public ResponseEntity<ResDTO<Object>> getRoles(HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {

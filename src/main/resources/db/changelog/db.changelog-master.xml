@@ -478,7 +478,7 @@
         </insert>
         <insert tableName="role_permissions">
             <column name="role_id" value="4"/>
-            <column name="permission_id" value="17"/>
+            <column name="permission_id" value="20"/>
             <column name="created_at" valueComputed="NOW()"/>
         </insert>
 

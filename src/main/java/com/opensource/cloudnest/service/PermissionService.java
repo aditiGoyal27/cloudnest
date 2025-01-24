@@ -128,7 +128,8 @@ public class PermissionService {
             }
             for(String key: menuListResponseResult.keySet()){
                 MenuObjectResponse menuObjectResponse = new MenuObjectResponse();
-                menuObjectResponse.setMenu(key);
+                ;
+                menuObjectResponse.setMenu(key.toUpperCase());
                 List<String> permissionList = menuListResponseResult.get(key);
                 for(String name : permissionList){
                     if(name.contains("CREATE")){
