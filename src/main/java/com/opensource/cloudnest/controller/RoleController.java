@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "https://app.wavematrix.ai/"})
 @RestController
 @RequestMapping("/role")
 public class RoleController {
@@ -34,7 +34,7 @@ public class RoleController {
     @GetMapping("/getRoles")
     public ResponseEntity<ResDTO<Object>> getRoles(HttpServletRequest request) {
         if (JwtTokenProvider.validateProfileIdInAccessToken(request , profileRepository)) {
-            return new ResponseEntity<>(roleService.getRoles(), HttpStatus.OK);
+            return new ResponseEntity<>(roleService.getRolesForUserCreation(), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResDTO<>(Boolean.FALSE, ResDTOMessage.RECORD_NOT_FOUND,"Sorry unable to load"), HttpStatus.OK);
     }

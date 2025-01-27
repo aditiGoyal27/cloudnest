@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "https://app.wavematrix.ai/"})
 @RestController
 @RequestMapping("/api/auth")
 public class PasswordController {

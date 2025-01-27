@@ -58,6 +58,21 @@ public class RoleService {
         }
         return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS,roleResponses);
     }
+
+    public ResDTO<Object> getRolesForUserCreation() {
+        List<String> rolesNames = new ArrayList<>();
+        rolesNames.add("ROLE_USER");
+        rolesNames.add("ROLE_AUDIT_USER");
+        List<Role> roles = roleRepository.findByNameInIgnoreCase(rolesNames); // Get all roles>\
+        List<RoleResponse> roleResponses = new ArrayList<>();
+
+        for(Role role : roles) {
+            long countUser = profileRepository.countByRole(role);
+            RoleResponse roleResponse = new RoleResponse(role.getId(),role.getName(),role.getDescription() , countUser, Timestamp.valueOf(role.getCreatedAt()).getTime(),Timestamp.valueOf(role.getUpdatedAt()).getTime());
+            roleResponses.add(roleResponse);
+        }
+        return new ResDTO<>(Boolean.TRUE , ResDTOMessage.SUCCESS,roleResponses);
+    }
     public ResDTO<Object> getFilteredRoles(String roleName) {
         List<Role> roleList = roleRepository.findByNameContainingIgnoreCase(roleName);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SUCCESS, roleList);

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "https://app.wavematrix.ai/"})
 @RestController
 @RequestMapping("/api/verify")
 public class EmailVerificationController {

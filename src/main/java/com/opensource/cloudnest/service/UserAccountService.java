@@ -47,12 +47,19 @@ public class UserAccountService {
         String name = signUpUserDTO.getName();
         String email = signUpUserDTO.getEmail();
         String contactNumber = signUpUserDTO.getContactNumber();
+        String role = signUpUserDTO.getRole();
+        if(role==null || role.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Role cannot be empty");
+        }
         Profile userAccount = new Profile();
         userAccount.setName(name);
         userAccount.setEmail(email);
         userAccount.setContactNumber(contactNumber);
-        Optional<Role> role = roleRepository.findByName(signUpUserDTO.getRole());
-        role.ifPresent(userAccount::setRole);
+        Optional<Role> checkRole = roleRepository.findByName(signUpUserDTO.getRole());
+        if(checkRole.isEmpty()) {
+            return new ResDTO<>(Boolean.FALSE, ResDTOMessage.FAILURE, "Role not found");
+        }
+        checkRole.ifPresent(userAccount::setRole);
         Optional<Profile> optionalProfile = profileRepository.findById(adminId);
         optionalProfile.ifPresent(userAccount::setAdmin);
         profileRepository.save(userAccount);
@@ -74,6 +81,7 @@ public class UserAccountService {
         userAccount.setCreatedOn(System.currentTimeMillis());
         profileRepository.save(userAccount);
         return new ResDTO<>(Boolean.TRUE, ResDTOMessage.SIGN_UP_SUCCESS, "User created successfully");
+
     }
 
     @Transactional
